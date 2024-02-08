@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  </head>
+  <body>
+    <label for="script">Your script here:</label>
+    <input type="file" name="script" id="script-file" />
+    <label for="data">Your data here:</label>
+    <input type="file" name="data" id="data-file"/>
+    <input id="runButton1" type="button" onclick="run_my_script()" value="Run my shit" disabled/>
+    <script type="text/javascript">
+      function run_python(code, data) {
+        if (code && data) {
+            console.log("Starting the script...");
+            window.pyodide.runPython(`
+                df = pd.read_csv("""${data}""")
+                exec("""${code}""")
+                scatter_px(df, "sepal width", "sepal length", "target", dpi=450, height=1000, width=1100, title="Scatter Plot on Iris data", legend_orientation="h")
+            `);
+            console.log("Finished");
+        }
+      }
+
+      async function main(){
+        document.querySelector("#runButton1").disabled = true;
+        let pyodide = await loadPyodide();
+        window.pyodide = pyodide;
+        //await micropip.install("numpy");
+        await pyodide.loadPackage(["numpy", "pandas", "micropip","scikit-learn"]);
+        //run_python("print('hello')", "a b");
+        //console.log(pyodide);
+        const version = `
+            import sys
+            sys.version
+        `;
+        console.log(pyodide.runPython(version));
+        const startup = `
+        import pandas as pd
+        import micropip
+
+        await micropip.install('plotly')
+        import plotly
+        print(plotly.__version__)
+
+        import sklearn
+        print(sklearn.__version__)
+        print("Python is ready...")
+        `;
+        await pyodide.runPythonAsync(startup);
+
+
+        document.querySelector("#runButton1").disabled = false;
+      }
+      main();
+
+      function run_my_script() {
+            const script = document.getElementById("script-file");
+            const data = document.getElementById("data-file");
+            let script_contents = null;
+            let data_contents = null;
+
+            const scriptReader = new FileReader();
+            scriptReader.onload = (evt) => {
+                script_contents = evt.target.result;
+                run_python(evt.target.result, data_contents);
+            };
+            scriptReader.readAsText(script.files[0]);
+
+            const dataReader = new FileReader();
+            dataReader.onload = (evt) => {
+                data_contents = evt.target.result;
+                run_python(script_contents, evt.target.result);
+            };
+            dataReader.readAsText(data.files[0]);
+        }
+    </script>
+  </body>
+</html>
