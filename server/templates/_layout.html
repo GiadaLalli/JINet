@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>JINet - {% block title %}{% endblock %}</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.18.3/dist/js/uikit.min.js"
+            integrity="sha256-ua+o4DxFP7aL6MHSmSBDP8NXfdk7TqxFaPrdva4RXIk="
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.18.3/dist/js/uikit-icons.min.js"></script>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/uikit@3.18.3/dist/css/uikit.min.css"
+          integrity="sha256-g8YvscCh8RVhep6YAOn4nrSWVcAYbNmDKcOUKyafvDA="
+          crossorigin="anonymous">
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body>
+    <nav class="uk-navbar-container uk-navbar-transparent" uk-navbar>
+      <div class="uk-navbar-left">
+        <ul class="uk-navbar-nav">
+          {% block nav %}{% endblock %}
+        </ul>
+      </div>
+    </nav>
+    <div class="uk-section-muted uk-height-viewport">
+      <div class="uk-container">
+        {% block main %}{% endblock %}
+      </div>
+    </div>
+    <footer class="uk-section uk-container">
+      Demo of JINet &copy; 2024 Giada Lalli.
+    </footer>
+
+    <script src="https://unpkg.com/htmx.org@1.9.10"
+            integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+            crossorigin="anonymous"></script>
+  </body>
+</html>

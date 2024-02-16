@@ -1,0 +1,25 @@
+---
+version: "3"
+
+services:
+  web:
+    build: "./server"
+    command: "poetry run hypercorn jinet.main:app --bind 0.0.0.0:8000"
+    volumes:
+      - "./server:/jinet:ro"
+    ports:
+      - "8000:8000"
+    environment:
+      - "DATABASE_URI=postgres+asyncpg://postgres:postgres@db/jinet"
+    depends_on:
+      - "database"
+
+  database:
+    image: 'postgres:16.2'
+    expose:
+      - '5432'
+    environment:
+      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_PASSWORD=postgres'
+      - 'POSTGRES_DB=jinet'
+...
