@@ -3,21 +3,25 @@ version: "3"
 
 services:
   web:
+    container_name: 'web'
     build: "./server"
-    command: "poetry run hypercorn jinet.main:app --bind 0.0.0.0:8000"
+    command: >
+      bash -c "poetry run alembic upgrade head &&
+               poetry run hypercorn --bind 0.0.0.0:8000 --reload jinet.main:app"
     volumes:
-      - "./server:/jinet:ro"
+      - "./server:/jinet:rw"
     ports:
       - "8000:8000"
     environment:
-      - "DATABASE_URI=postgres+asyncpg://postgres:postgres@db/jinet"
+      - "DATABASE_URI=postgresql+asyncpg://postgres:postgres@database/jinet"
     depends_on:
       - "database"
 
   database:
     image: 'postgres:16.2'
-    expose:
-      - '5432'
+    container_name: 'database'
+    ports:
+      - "5432:5432"
     environment:
       - 'POSTGRES_USER=postgres'
       - 'POSTGRES_PASSWORD=postgres'

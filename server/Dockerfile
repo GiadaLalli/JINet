@@ -17,3 +17,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && poetry config virtualenvs.create false \
   && rm -rf /var/lib/apt/lists/* \
   && poetry install --no-interaction --no-ansi --no-root -vvv
+
+CMD poetry run hypercorn --bind 0.0.0.0:8000 jinet.main:app
