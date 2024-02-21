@@ -12,7 +12,9 @@
     <input class="uk-search-input" type="search" placeholder="Search" aria-label="Search">
   </form>
   <div class="uk-width-expand">
+    {% if user is defined %}
     <a href="/packages/new" class="uk-icon-button" uk-icon="plus" title="Upload a package."></a>
+    {% endif %}
   </div>
 </div>
 <div class="uk-text-center uk-child-width-1-3" uk-grid hx-get="/packages/list?since=0" hx-trigger="load"></div>
