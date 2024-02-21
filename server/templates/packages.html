@@ -1,15 +1,19 @@
 {% extends "_layout.html" %}
 {% block title %}Packages{% endblock %}
 {% block nav %}
-<li class="uk-active"><a href="#">Home</a></li>
+<li><a href="/">Home</a></li>
+<li class="uk-active"><a>Packages</a></li>
 {% endblock %}
 {% block main %}
 <h1>JINet Analysis packages</h1>
-<div class="uk-margin">
-  <form class="uk-search uk-search-default">
+<div class="uk-grid uk-margin">
+  <form class="uk-width-auto uk-search uk-search-default">
     <span uk-search-icon></span>
     <input class="uk-search-input" type="search" placeholder="Search" aria-label="Search">
   </form>
+  <div class="uk-width-expand">
+    <a href="/packages/new" class="uk-icon-button" uk-icon="plus" title="Upload a package."></a>
+  </div>
 </div>
 <div class="uk-text-center uk-child-width-1-3" uk-grid hx-get="/packages/list?since=0" hx-trigger="load"></div>
 {% endblock %}

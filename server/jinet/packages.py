@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse
 
 from sqlmodel import select, Session
 
+from jinet import auth
 from jinet.templates import templates
 from jinet.db import database_session
 from jinet.models import Package
@@ -20,5 +21,16 @@ async def listing(
     query = select(Package).where(Package.id >= since).limit(10)
     results = await session.exec(query)
     return templates.TemplateResponse(
-        request=request, name="package-list.html", context={"packages": results}
+        request=request,
+        name="package-list.html",
+        context={"packages": results},
+    )
+
+
+@router.get("/new", response_class=HTMLResponse)
+async def new(request: Request):
+    """Create a new package."""
+    user = auth.user(request)
+    return templates.TemplateResponse(
+        request=request, name="package-new.html", context={"user": user}
     )

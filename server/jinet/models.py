@@ -4,16 +4,18 @@ from datetime import datetime, timezone
 
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, LargeBinary
+from sqlalchemy.types import TIMESTAMP
 
 
 class UserBase(SQLModel):
     created: datetime = Field(
-        nullable=False, default_factory=lambda: datetime.now(timezone.utc)
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column("created", type_=TIMESTAMP(timezone=True), nullable=False),
     )
-    first_name: Optional[str]
-    last_name: Optional[str]
+    username: Optional[str] = Field(nullable=True, default=None)
     role: str = Field(nullable=False)
-    picture: bytes = Field(sa_column=Column("picture", LargeBinary))
+    picture: str = Field(nullable=False)
+    sub: str = Field(nullable=False, index=True)
 
 
 class User(UserBase, table=True):
@@ -25,7 +27,12 @@ class PackageBase(SQLModel):
     name: str
     data: bytes = Field(sa_column=Column("data", LargeBinary))
     published: datetime = Field(
-        nullable=False, default_factory=lambda: datetime.now(timezone.utc)
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(
+            "published",
+            type_=TIMESTAMP(timezone=True),
+            nullable=False,
+        ),
     )
     description: Optional[str]
     version: int

@@ -1,0 +1,23 @@
+{% extends "_layout.html" %}
+{% block title %}Packages{% endblock %}
+{% block nav %}
+<li><a href="/">Home</a></li>
+<li class="uk-active"><a>Packages &gt; New</a></li>
+{% endblock %}
+{% block main %}
+<h1>Upload new package</h1>
+<form>
+  <div class="uk-flex uk-margin uk-flex-middle">
+    <label class="uk-label uk-margin-right" for="package-name">Package name</label>
+    <input id="package-name" name="package-name" class="uk-input" type="text" placeholder="Name">
+  </div>
+  <div class="uk-flex uk-margin uk-flex-middle">
+    <label class="uk-label uk-margin-right" for="package-description">Description</label>
+    <textarea id="package-description" name="package-description" rows="20" cols="250"></textarea>
+  </div>
+  <div class="uk-flex uk-margin uk-flex-middle">
+    <label class="uk-label uk-margin-right" for="package-file">File</label>
+    <input id="package-file" name="package-file" class="uk-input" type="file">
+  </div>
+</form>
+{% endblock %}
