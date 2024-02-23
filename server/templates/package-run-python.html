@@ -11,6 +11,50 @@
   const loaderdiv = document.querySelector("#loader");
   const parametersdiv = document.querySelector("#parameters");
   const datafolderbutton = document.querySelector("#data-folder");
+  const fieldsparent = document.querySelector("#parameter-fields");
+  const iface = {{iface | tojson}};
+
+  for (const [name, desc] of Object.entries(iface.parameters)) {
+    console.log(name,desc);
+    switch (desc.type) {
+    case "int": {
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = name;
+      input.step = 1;
+      if (desc.default !== null) {
+        input.value = desc.default;
+      }
+      const el = document.createElement("fieldset");
+      el.innerHTML = desc.description;
+      const title = document.createElement("legend");
+      title.innerHTML = name;
+      el.appendChild(title);
+      el.appendChild(input);
+      fieldsparent.appendChild(el);
+      break;
+    }
+
+    case 'string': {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.id = name;
+      if (desc.default !== null) {
+        input.value = desc.default;
+      }
+      const el = document.createElement("fieldset");
+      el.innerHTML = desc.description;
+      const title = document.createElement("legend");
+      title.innerHTML = name;
+      el.appendChild(title);
+      el.appendChild(input);
+      fieldsparent.appendChild(el);
+      break;
+    }
+    }
+  }
+
+  
   const worker = new Worker("/static/python-runtime.js");
   worker.onmessage = (evt) => {
     const {msg, value} = evt.data;

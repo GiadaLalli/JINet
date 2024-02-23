@@ -1,6 +1,7 @@
 """CRUD operations on packages."""
 
-from typing import Annotated
+from typing import Annotated, Optional
+from dataclasses import dataclass
 from statistics import mean
 from io import BytesIO
 import json
@@ -31,6 +32,23 @@ router = APIRouter()
 
 # 100k
 MAX_CONTENT_LEN = 100_000
+
+
+@dataclass
+class PackageName:
+    user: str
+    package: str
+    version: int
+
+
+def parse_package_name(name: str) -> Optional[PackageName]:
+    """Parse a package name in the format user/name@version."""
+    try:
+        (user, (package_version)) = name.split("/", 1)
+        (package, version) = package_version.split("@", 1)
+        return PackageName(user, package, int(version))
+    except ValueError:
+        return None
 
 
 async def valid_content_len(content_length: int = Header(..., lt=MAX_CONTENT_LEN)):
@@ -152,14 +170,33 @@ async def run(
     request: Request,
     package: str,
     runtime: str,
+    session: Session = Depends(database_session),
 ):
     """Run a package in the users browser."""
+    pkgdef = parse_package_name(package)
+    owner = (
+        await session.exec(select(User).where(User.username == pkgdef.user))
+    ).first()
+    if owner is None:
+        return RedirectResponse(request.url_for("packages"))
+
+    query = (
+        select(Package)
+        .where(Package.name == pkgdef.package)
+        .where(Package.owner_id == owner.id)
+        .where(Package.version == pkgdef.version)
+    )
+    result = await session.exec(query)
+    db_package = result.first()
+    print(db_package.interface)
+
     match runtime:
         case "python-runtime":
             return templates.TemplateResponse(
                 request=request,
                 name="package-run-python.html",
-                context=auth.user_in_context(request) | {"package": package},
+                context=auth.user_in_context(request)
+                | {"package": package, "iface": db_package.interface},
             )
         case _:
             return RedirectResponse(request.url_for("packages"))
@@ -170,17 +207,18 @@ async def file(
     request: Request, package: str, session: Session = Depends(database_session)
 ):
     """Get the package data file from the database."""
-    (user, (package_version)) = package.split("/", 1)
-    (package, version) = package_version.split("@", 1)
-    owner = (await session.exec(select(User).where(User.username == user))).first()
+    pkgdef = parse_package_name(package)
+    owner = (
+        await session.exec(select(User).where(User.username == pkgdef.user))
+    ).first()
     if owner is None:
         return RedirectResponse(request.url_for("packages"))
 
     query = (
         select(Package)
-        .where(Package.name == package)
+        .where(Package.name == pkgdef.package)
         .where(Package.owner_id == owner.id)
-        .where(Package.version == int(version))
+        .where(Package.version == pkgdef.version)
     )
     result = await session.exec(query)
     db_package = result.first()
