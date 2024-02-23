@@ -1,0 +1,46 @@
+{% extends "package-run.html" %}
+
+{% block extra_head %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+{% endblock %}
+
+{% block main %}
+{{ super() }}
+<script type="text/javascript">
+  const loaderdiv = document.querySelector("#loader");
+  const parametersdiv = document.querySelector("#parameters");
+  const datafolderbutton = document.querySelector("#data-folder");
+  const worker = new Worker("/static/python-runtime.js");
+  worker.onmessage = (evt) => {
+    const {msg, value} = evt.data;
+    console.log("Message:", msg, value);
+    switch (msg) {
+    case "error": {
+      console.error(value);
+      break;
+    }
+    case "source": {
+      loaderdiv.style.display = "none";
+      parametersdiv.style.display = "flex";
+      break;
+    }
+    case "datadir": {
+      datafolderbutton.disabled = true;
+      break;
+    }
+    }
+  };
+  worker.postMessage({msg: "source", value: "/packages/file?package={{package}}"});
+
+  datafolderbutton.addEventListener("click", async () => {
+    const dirHandle = await showDirectoryPicker();
+    if ((await dirHandle.queryPermission({ mode: "read" })) !== "granted") {
+      if ((await dirHandle.requestPermission({ mode: "read" })) !== "granted") {
+        throw Error("Unable to access your data directory");
+      }
+    }
+    worker.postMessage({msg: "datadir", value: dirHandle});
+  })
+</script>
+{% endblock %}

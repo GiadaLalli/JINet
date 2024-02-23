@@ -6,7 +6,26 @@
 {% endblock %}
 {% block main %}
 <h1>Upload new package</h1>
-<form>
+<form hx-post="/packages/validate" hx-target="this" hx-swap="outerHTML" hx-encoding="multipart/form-data">
+  <div class="uk-flex uk-margin uk-flex-middle">
+    <span class="uk-label uk-margin-right">Runtime</span>
+    <div>
+      <input type="radio" id="python-runtime" name="runtime" value="python-runtime" checked />
+      <label for="python-runtime">Python 3.11</label>
+    </div>
+    <div>
+      <input type="radio" id="javascript-runtime" name="runtime" value="javascript-runtime" disabled />
+      <label for="javascript-runtime">Javascript</label>
+    </div>
+    <div>
+      <input type="radio" id="R-runtime" name="runtime" value="R-runtime" disabled />
+      <label for="R-runtime">R</label>
+    </div>
+    <div>
+      <input type="radio" id="Julia-runtime" name="runtime" value="Julia-runtime" disabled />
+      <label for="Julia-runtime">Julia</label>
+    </div>
+  </div>
   <div class="uk-flex uk-margin uk-flex-middle">
     <label class="uk-label uk-margin-right" for="package-name">Package name</label>
     <input id="package-name" name="package-name" class="uk-input" type="text" placeholder="Name">
@@ -16,8 +35,53 @@
     <textarea id="package-description" name="package-description" rows="20" cols="250"></textarea>
   </div>
   <div class="uk-flex uk-margin uk-flex-middle">
+    <label class="uk-label uk-margin-right" for="package-tags">Tags</label>
+    <input id="package-tags" name="package-tags" class="uk-input" type="text" placeholder="Comma seperated list of tags." />
+  </div>
+  <div class="uk-flex uk-margin uk-flex-middle">
     <label class="uk-label uk-margin-right" for="package-file">File</label>
     <input id="package-file" name="package-file" class="uk-input" type="file">
+  </div>
+  <div class="uk-flex uk-margin uk-flex-middle">
+    <label class="uk-label uk-margin-right" for="entrypoint">Entrypoint</label>
+    <input id="entrypoint" name="entrypoint" class="uk-input" type="text" placeholder="main" />
+  </div>
+  <div class="uk-flex uk-margin uk-flex-middle">
+    <label class="uk-label uk-margin-right" for="parameters">Parameters</label>
+    <textarea id="parameters" name="parameters" rows="20" cols="150">
+{
+  "data": {
+    "type": "path",
+    "description": "A CSV data file",
+    "default": null
+  },
+  "name": {
+     "type": "string",
+     "description": "The name of the column to extract data",
+     "default": "name"
+  },
+  "rotation": {
+    "type": "float",
+    "description": "The rotation to apply in radians",
+    "default": 0.1
+  }
+}
+    </textarea>
+  </div>
+  <div class="uk-flex uk-margin uk-flex-middle">
+    <span class="uk-label uk-margin-right">Output type</span>
+    <div>
+      <input type="radio" id="output-html" name="output" value="output-html" checked />
+      <label for="output-html">HTML</label>
+    </div>
+    <div>
+      <input type="radio" id="output-file" name="output" value="output-file" />
+      <label for="output-file">File</label>
+    </div>
+  </div>
+  <div class="uk-flex uk-margin uk-flex-center">
+    <input type="submit" value="Submit" class="uk-button uk-button-primary uk-margin-right" />
+    <a href="/packages" class="uk-button uk-button-secondary uk-margin-left">Cancel</a>
   </div>
 </form>
 {% endblock %}

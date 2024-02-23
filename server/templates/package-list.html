@@ -3,13 +3,20 @@
   <div class="uk-card uk-card-default">
     <div class="uk-card-header">
       <div class="uk-grid-small uk-flex-middle" uk-grid>
-        <div class="uk-width-auto">
-          <img alt="profile photo for @{{package.owner.username}}" class="uk-border-circle" width="40" height="40" src="data:image/png;base64, {{package.owner.picture | b64encode}}" />
-        </div>
         <div class="uk-width-expand">
-          <h3 class="uk-card-title uk-margin-remove-bottom">{{package.name | escape}}</h3>
-          <p class="uk-text-meta uk-margin-remove-top">By <a>@{{package.owner.username | escape}}</a> (version {{package.version}})</p>
+          <h3 class="uk-card-title uk-margin-remove-bottom uk-margin-remove-top uk-inline">
+            {{package.name | escape}}
+          </h3>
+          <p class="uk-text-meta uk-margin-remove-top uk-margin-remove-bottom">
+            Version {{package.version}}
+          </p>
+          <div class="uk-width-auto">
+            <img alt="profile photo" class="uk-border-circle" width="40" height="40" src="{{package.owner.picture}}" title="{{package.owner.username}}" referrerpolicy="no-referrer" />
+          </div>
           <span>
+            {% if package.runtime == "python-runtime" %}
+            <span class="uk-badge">Python</span>
+            {% endif %}
             {% for tag in package.tags %}
             <span class="uk-badge">{{tag.name}}</span>
             {% endfor %}
@@ -19,9 +26,16 @@
     </div>
     <div class="uk-card-body">
       <p>{{package.description | escape}}</p>
+      <p class="uk-text-meta">
+        {% if package.rating is not none %}
+        Rating: {{package.rating}}
+        {% else %}
+        No rating yet
+        {% endif %}
+      </p>
     </div>
     <div class="uk-card-footer">
-      <a class="uk-button uk-button-primary">Use</a>
+      <a class="uk-button uk-button-primary" href="/packages/run?package={{package.owner.username}}/{{package.name}}@{{package.version}}&runtime={{package.runtime}}">Run</a>
     </div>
   </div>
 </div>

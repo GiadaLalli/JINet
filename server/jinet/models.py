@@ -1,10 +1,12 @@
 """Database tables."""
+
 from typing import List, Optional
 from datetime import datetime, timezone
 
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, JSON, Relationship
 from sqlalchemy import Column, LargeBinary
 from sqlalchemy.types import TIMESTAMP
+from sqlalchemy.dialects.postgresql import JSONB
 
 
 class UserBase(SQLModel):
@@ -20,7 +22,9 @@ class UserBase(SQLModel):
 
 class User(UserBase, table=True):
     id: int = Field(nullable=False, primary_key=True)
-    packages: List["Package"] = Relationship(back_populates="owner")
+    packages: List["Package"] = Relationship(
+        back_populates="owner", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 class PackageBase(SQLModel):
@@ -34,20 +38,39 @@ class PackageBase(SQLModel):
             nullable=False,
         ),
     )
-    description: Optional[str]
+    description: Optional[str] = Field(default=None)
     version: int
     runtime: str
-    rating: float
+    interface: dict = Field(sa_column=Column("interface", JSONB, nullable=False))
+    reviewed: bool = Field(default=False)
 
 
 class Package(PackageBase, table=True):
     id: int = Field(nullable=False, primary_key=True)
     owner_id: int = Field(foreign_key="user.id")
-    owner: User = Relationship(back_populates="packages")
-    tags: List["Tag"] = Relationship(back_populates="package")
+    owner: User = Relationship(
+        back_populates="packages", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    tags: List["Tag"] = Relationship(
+        back_populates="package", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    ratings: List["Rating"] = Relationship(
+        back_populates="package", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 class Tag(SQLModel, table=True):
     name: str = Field(nullable=False, primary_key=True)
     package_id: int = Field(foreign_key="package.id", primary_key=True)
-    package: Package = Relationship(back_populates="tags")
+    package: Package = Relationship(
+        back_populates="tags", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+
+
+class Rating(SQLModel, table=True):
+    id: int = Field(nullable=False, primary_key=True)
+    package_id: int = Field(foreign_key="package.id")
+    package: Package = Relationship(
+        back_populates="ratings", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    rating: int = Field(nullable=False)

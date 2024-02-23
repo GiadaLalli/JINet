@@ -1,0 +1,24 @@
+{% extends "_layout.html" %}
+{% block title %}Run{% endblock %}
+{% block nav %}
+<li><a href="/">Home</a></li>
+<li><a href="/packages">Packages</a></li>
+<li class="uk-active"><a>Run</a></li>
+{% endblock %}
+
+{% block main %}
+<div class="uk-flex uk-flex-column uk-flex-center uk-flex-middle uk-height-large" id="main">
+  <div id="loader">
+    <div uk-spinner="ratio: 3"></div>
+    <p>Loading...</p>
+  </div>
+  <div id="parameters" style="display: none; gap: 10%;" class="uk-flex uk-flex-column">
+    <input type="button"
+           name="data"
+           id="data-folder"
+           value="Select your local data folder"
+           class="uk-button uk-button-default" />
+    <input type="text" />
+  </div>
+</div>
+{% endblock %}
