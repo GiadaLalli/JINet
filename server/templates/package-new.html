@@ -48,28 +48,20 @@
   </div>
   <div class="uk-flex uk-margin uk-flex-middle">
     <label class="uk-label uk-margin-right" for="parameters">Parameters</label>
-    <textarea id="parameters" name="parameters" rows="20" cols="150">
-[
-  {
-    "name": "data",
-    "type": "path",
-    "description": "A CSV data file",
-    "default": null
-  },
-  {
-     "name": "name",
-     "type": "string",
-     "description": "The name of the column to extract data",
-     "default": "name"
-  },
-  {
-    "name": "rotation",
-    "type": "float",
-    "description": "The rotation to apply in radians",
-    "default": 0.1
-  }
-]
-    </textarea>
+    <div id="parameter-fields" class="uk-flex uk-flex-column uk-width-1-1">
+      <span class="uk-flex">
+        <input type="text" oninput="updateName(this, 0)" placeholder="Name"/>
+        <select class="uk-margin-left" oninput="updateType(this, 0)">
+          <option value="string" selected>String</option>
+          <option value="path">Path</option>
+          <option value="int">Integer</option>
+          <option value="float">Float</option>
+        </select>
+        <input class="uk-margin-left" type="text" oninput="updateDescription(this, 0)" placeholder="Description" />
+        <input class="uk-margin-left" type="text" oninput="updateDefault(this, 0)" placeholder="Default value" />
+        <a class="uk-icon-button uk-margin-left" uk-icon="plus" onclick="add(0)"></a>
+      </span>
+    </div>
   </div>
   <div class="uk-flex uk-margin uk-flex-middle">
     <span class="uk-label uk-margin-right">Output type</span>
@@ -86,5 +78,121 @@
     <input type="submit" value="Submit" class="uk-button uk-button-primary uk-margin-right" />
     <a href="/packages" class="uk-button uk-button-secondary uk-margin-left">Cancel</a>
   </div>
+  <input type="hidden" name="parameters" id="parameters" value="" />
 </form>
+<script type="text/javascript">
+  let parameterData = [{name: "", type: "string", description: null, default: null}];
+
+  function update() {
+    const data = JSON.stringify(parameterData);
+    document.getElementById("parameters").value = data;
+    console.log(data);
+  }
+
+  function updateName(element, index) {
+    const value = element.value;
+    if (index < parameterData.length) {
+        parameterData[index].name = value;
+        update()
+    }
+  }
+
+  function updateType(element, index) {
+    const value = element.value;
+
+    if (index < parameterData.length) {
+      parameterData[index].type = value;
+      update();
+    }
+  }
+
+  function updateDescription(element, index) {
+    const value = element.value;
+
+    if (index < parameterData.length) {
+      parameterData[index].description = value;
+      update();
+    }
+  }
+
+  function updateDefault(element, index) {
+    const value = element.value;
+
+    if (index < parameterData.length) {
+      parameterData[index].default = value;
+      update();
+    }
+  }
+
+  function mkTypeInput(index) {
+    const select = document.createElement("select");
+    select.className = "uk-margin-left";
+    select.setAttribute("oninput", `updateType(this, ${index})`);
+    [
+      ["String", "string"],
+      ["Path", "path"],
+      ["Integer", "int"],
+      ["Float", "float"]
+    ].forEach(([name, identifier], i) => {
+      const opt = document.createElement("option");
+      if (i === 0) {
+        opt.selected = true;
+      }
+      opt.value = identifier;
+      opt.innerText = name;
+      select.appendChild(opt);
+    });
+    return select;
+  }
+
+  function add(index) {    
+    const button = document
+          .querySelector(`#parameter-fields span:nth-child(${index + 1}) a`);
+    console.log(button);
+    button.setAttribute("uk-icon", "minus");
+    button.setAttribute("onclick", "remove(this, 0)");
+
+    // Add a new row
+    parameterData = parameterData.concat([{name: "", type: "string", description: "", default: ""}]);
+    const container = document.createElement("span");
+    container.className = "uk-flex uk-margin-top";
+    const name = document.createElement("input");
+    name.type = "text";
+    name.setAttribute("oninput", `updateName(this, ${index + 1})`);
+    name.placeholder = "Name";
+    container.appendChild(name);
+
+    container.appendChild(mkTypeInput(index + 1));
+    const desc = document.createElement("input");
+    desc.className = "uk-margin-left";
+    desc.type = "text";
+    desc.setAttribute("oninput", `updateDescription(this, ${index + 1})`);
+    desc.placeholder = "Description";
+    container.appendChild(desc);
+
+    const dflt = document.createElement("input");
+    dflt.className = "uk-margin-left";
+    dflt.type = "text";
+    dflt.setAttribute("oninput", `updateDefault(this, ${index + 1})`);
+    dflt.placeholder = "Default";
+    container.appendChild(dflt);
+
+    const btn = document.createElement("a");
+    btn.className = "uk-icon-button uk-margin-left";
+    btn.setAttribute("uk-icon", "plus");
+    btn.setAttribute("onclick", `add(${index + 1})`);
+    container.appendChild(btn);
+
+    document.getElementById("parameter-fields").appendChild(container);
+    console.log(parameterData);
+  }
+
+  function remove(index) {
+    if (index < parameterData.length) {
+      parameterData = parameterData.filter((_, i) => i !== index);
+      document.querySelector(`#parameter-fields span:nth-child(${index + 1})`).outerHTML = "";
+      update();
+    }
+  }
+</script>
 {% endblock %}
