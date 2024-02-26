@@ -5,6 +5,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from starlette.middleware.sessions import SessionMiddleware
+from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
+from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
 
 from jinet import auth, packages
 from jinet.config import settings
@@ -12,6 +14,12 @@ from jinet.templates import templates
 
 app = FastAPI(title="JINet")
 app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
+app.add_middleware(
+    CrossOriginEmbedderPolicy, Option={"Cross-Origin-Embedder-Policy": "credentialless"}
+)
+app.add_middleware(
+    CrossOriginOpenerPolicy, Option={"Cross-Origin-Opener-Policy": "same-origin"}
+)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 api_router = APIRouter()

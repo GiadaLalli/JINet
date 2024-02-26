@@ -14,6 +14,7 @@
   const runbutton = document.querySelector("#run-package");
   const fieldsparent = document.querySelector("#parameter-fields");
   const resultdiv = document.querySelector("#result");
+  const cancelbutton = document.querySelector("#cancel-run-package");
   let pathPrefix = "";
 
   function addFileSelectors(files) {
@@ -35,7 +36,8 @@
         })
       });
   }
-  
+
+  let interruptBuffer = new Uint8Array(new SharedArrayBuffer(1));
   const worker = new Worker("/static/python-runtime.js");
   worker.onmessage = (evt) => {
     const {msg, value} = evt.data;
@@ -82,6 +84,7 @@
     }
     }
   };
+  worker.postMessage({msg: "interrupt_buffer", value: interruptBuffer});
   worker.postMessage({msg: "source", value: "/packages/file?package={{package}}"});
 
   datafolderbutton.addEventListener("click", async () => {
@@ -98,6 +101,10 @@
     parametersdiv.style.display = "none";
     document.querySelector("#loader p").innerText = "Running...";
     loaderdiv.style.display = "block";
+    cancelbutton.style.display = "block";
+
+    // Clear the interrupt buffer
+    interruptBuffer[0] = 0;
 
     worker.postMessage({
       msg: "run",
@@ -116,6 +123,13 @@
         ]
       }
     })
+  });
+
+  cancelbutton.addEventListener("click", () => {
+    interruptBuffer[0] = 2;
+    cancelbutton.style.display = "none";
+    loaderdiv.style.display = "none";
+    parametersdiv.style.display = "flex";
   });
 </script>
 {% endblock %}

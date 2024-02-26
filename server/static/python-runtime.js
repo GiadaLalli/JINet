@@ -43,6 +43,10 @@ self.onmessage = async (event) => {
   const { msg, value } = event.data;
 
   switch (msg) {
+    case "interrupt_buffer": {
+      self.pyodide.setInterruptBuffer(value);
+      break;
+    }
     case "datadir": {
       self.datapath = `${self.pyodide.FS.cwd()}/data`;
       self.datadir = await self.pyodide.mountNativeFS(self.datapath, value);
