@@ -11,54 +11,34 @@
   const loaderdiv = document.querySelector("#loader");
   const parametersdiv = document.querySelector("#parameters");
   const datafolderbutton = document.querySelector("#data-folder");
+  const runbutton = document.querySelector("#run-package");
   const fieldsparent = document.querySelector("#parameter-fields");
-  const iface = {{iface | tojson}};
+  const resultdiv = document.querySelector("#result");
+  let pathPrefix = "";
 
-  for (const [name, desc] of Object.entries(iface.parameters)) {
-    console.log(name,desc);
-    switch (desc.type) {
-    case "int": {
-      const input = document.createElement("input");
-      input.type = "number";
-      input.id = name;
-      input.step = 1;
-      if (desc.default !== null) {
-        input.value = desc.default;
-      }
-      const el = document.createElement("fieldset");
-      el.innerHTML = desc.description;
-      const title = document.createElement("legend");
-      title.innerHTML = name;
-      el.appendChild(title);
-      el.appendChild(input);
-      fieldsparent.appendChild(el);
-      break;
-    }
-
-    case 'string': {
-      const input = document.createElement("input");
-      input.type = "text";
-      input.id = name;
-      if (desc.default !== null) {
-        input.value = desc.default;
-      }
-      const el = document.createElement("fieldset");
-      el.innerHTML = desc.description;
-      const title = document.createElement("legend");
-      title.innerHTML = name;
-      el.appendChild(title);
-      el.appendChild(input);
-      fieldsparent.appendChild(el);
-      break;
-    }
-    }
+  function addFileSelectors(files) {
+    Array.from(document.querySelectorAll("div[data-parameter=path]"))
+      .map((pathinput) => {
+        files.forEach((file) => {
+          const container = document.createElement("div");
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = pathinput.dataset.parameterName;
+          input.value = file;
+          input.id = `${pathinput.dataset.parameterName}-${file}`;
+          container.appendChild(input);
+          const label = document.createElement("label");
+          label.htmlFor = `${pathinput.dataset.parameterName}-${file}`;
+          label.innerHTML = file;
+          container.appendChild(label);
+          pathinput.appendChild(container);
+        })
+      });
   }
-
   
   const worker = new Worker("/static/python-runtime.js");
   worker.onmessage = (evt) => {
     const {msg, value} = evt.data;
-    console.log("Message:", msg, value);
     switch (msg) {
     case "error": {
       console.error(value);
@@ -71,6 +51,33 @@
     }
     case "datadir": {
       datafolderbutton.disabled = true;
+      fieldsparent.style.display = "flex";
+      runbutton.style.display = "block";
+      addFileSelectors(value.files);
+      pathPrefix = value.prefix;
+      break;
+    }
+      
+    case "run": {
+      loaderdiv.style.display = "none";
+
+      {% if iface.output == "output-html" %}
+      const range = document.createRange();
+      range.selectNode(resultdiv);
+      resultdiv.appendChild(range.createContextualFragment(value));
+      {% elif iface.output == "output-file" %}
+      worker.postMessage({msg: "read", value});
+      {% endif %}
+
+      resultdiv.style.display = "flex";
+      break;
+    }
+    case "read": {
+      const download = document.createElement("a");
+      download.setAttribute("class", "uk-button uk-button-primary");
+      download.href = window.URL.createObjectURL(value.data);
+      download.download = value.filename;
+      resultdiv.appendChild(download);
       break;
     }
     }
@@ -85,6 +92,30 @@
       }
     }
     worker.postMessage({msg: "datadir", value: dirHandle});
-  })
+  });
+
+  runbutton.addEventListener("click", async () => {
+    parametersdiv.style.display = "none";
+    document.querySelector("#loader p").innerText = "Running...";
+    loaderdiv.style.display = "block";
+
+    worker.postMessage({
+      msg: "run",
+      value: {
+        entry: "{{iface.entrypoint}}",
+        parameters: [
+          {% for parameter in iface.parameters %}
+          {% if parameter.type == "string" %}
+          document.querySelector("#parameter-{{parameter.name}}").value,
+          {% elif parameter.type == "int" %}
+
+          {% elif parameter.type == "path" %}
+          `${pathPrefix}/${document.querySelector("input[type='radio'][name='parameter-{{parameter.name}}']:checked").value}`,
+          {% endif %}
+          {% endfor %}
+        ]
+      }
+    })
+  });
 </script>
 {% endblock %}

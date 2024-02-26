@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block main %}
-<div class="uk-flex uk-flex-column uk-flex-center uk-flex-middle uk-height-large" id="main">
+<div class="uk-flex uk-flex-column uk-flex-center uk-flex-middle" id="main">
   <div id="loader">
     <div uk-spinner="ratio: 3"></div>
     <p>Loading...</p>
@@ -18,9 +18,38 @@
            id="data-folder"
            value="Select your local data folder"
            class="uk-button uk-button-default" />
-    <fieldset id="parameter-fields" class="uk-flex uk-flex-column uk-flex-center">
+    <fieldset id="parameter-fields"
+              style="display:none"
+              class="uk-flex uk-flex-column uk-flex-center">
       <legend>Parameters</legend>
+      {% for parameter in iface.parameters %}
+      <fieldset class="uk-flex uk-flex-column">
+        <legend>{{parameter.name}}</legend>
+        <p class="uk-text-meta uk-margin-small">{{parameter.description}}</p>
+
+        {% if parameter.type == "string" %}
+        <input type="text" id="parameter-{{parameter.name}}" value="{{parameter.default if parameter.default is not none else ''}}" />
+        {% elif parameter.type == "int" %}
+        <input type="number" step="1" id="parameter-{{parameter.name}}" value="{{parameter.default if parameter.default is not none else 0}}" />
+        {% elif parameter.type == "float" %}
+        <input type="number" id="parameter-{{parameter.name}}" value="{{parameter.default if parameter.default is not none else 0.0}}" step="0.01" />
+        {% elif parameter.type == "path" %}
+        <div class="uk-height-max-medium uk-overflow-auto"
+             data-parameter="path"
+             data-parameter-name="parameter-{{parameter.name}}">
+
+        </div>
+        {% endif %}
+
+      </fieldset>
+      {% endfor %}
     </fieldset>
+    <input type="button"
+           style="display:none"
+           class="uk-button uk-button-primary"
+           value="Run!"
+           id="run-package" />
   </div>
+  <div id="result" style="display:none" class="uk-flex"></div>
 </div>
 {% endblock %}

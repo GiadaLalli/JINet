@@ -10,9 +10,31 @@ async function initRuntime() {
     "pandas",
     "scikit-learn",
   ]);
+
+  await pyodide.runPythonAsync(`
+import micropip
+await micropip.install('plotly')`);
 }
 
 let runtimeReady = initRuntime();
+
+self.dirListing = (path) => {
+  let _this = self;
+  return self.pyodide.FS.readdir(path).flatMap((name) => {
+    if (name === "." || name === "..") {
+      return [];
+    }
+    const newpath = `${path}/${name}`;
+    const stat = _this.pyodide.FS.lstat(newpath);
+    if (_this.pyodide.FS.isFile(stat.mode)) {
+      return [newpath];
+    } else if (_this.pyodide.FS.isDir(stat.mode)) {
+      return _this.dirListing(newpath);
+    } else {
+      return [];
+    }
+  });
+};
 
 self.onmessage = async (event) => {
   await runtimeReady;
@@ -22,11 +44,17 @@ self.onmessage = async (event) => {
 
   switch (msg) {
     case "datadir": {
-      self.datadir = await self.pyodide.mountNativeFS(
-        `${self.pyodide.FS.cwd()}/data`,
-        value,
-      );
-      self.postMessage({ msg: "datadir", value: "ready" });
+      self.datapath = `${self.pyodide.FS.cwd()}/data`;
+      self.datadir = await self.pyodide.mountNativeFS(self.datapath, value);
+      self.postMessage({
+        msg: "datadir",
+        value: {
+          prefix: self.datapath,
+          files: self.dirListing(self.datapath).map((name) => {
+            return name.substring(self.datapath.length + 1);
+          }),
+        },
+      });
       break;
     }
     case "source": {
@@ -46,6 +74,9 @@ self.onmessage = async (event) => {
           };
           reader.readAsText(value);
         }
+        await self.pyodide.loadPackagesFromImports(
+          self.pyodide.FS.readFile("script.py", { encoding: "utf8" }),
+        );
       } catch (error) {
         self.postMessage({
           msg: "error",
@@ -59,14 +90,20 @@ self.onmessage = async (event) => {
       try {
         const pkg = self.pyodide.pyimport("script");
         const result = pkg[entry](...parameters);
+        self.postMessage({ msg: "run", value: result });
       } catch (error) {
         self.postMessage({ msg: "error", value: error.message });
       }
-      self.postMessage(result);
       break;
     }
     case "read": {
-      self.postMessage(self.pyodide.FS.readFile(value));
+      self.postMessage({
+        msg: "read",
+        value: {
+          filename: value,
+          data: new Blob([self.pyodide.FS.readFile(value)]),
+        },
+      });
       break;
     }
   }
