@@ -198,6 +198,13 @@ async def run(
                 context=auth.user_in_context(request)
                 | {"package": package, "iface": db_package.interface},
             )
+        case "R-runtime":
+            return templates.TemplateResponse(
+                request=request,
+                name="package-run-R.html",
+                context=auth.user_in_context(request)
+                | {"package": package, "iface": db_package.interface},
+            )
         case _:
             return RedirectResponse(request.url_for("packages"))
 

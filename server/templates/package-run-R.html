@@ -1,0 +1,78 @@
+{% extends "package-run.html" %}
+
+{% block extra_head %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+{% endblock %}
+
+{% block main %}
+{{ super() }}
+
+<script type="module">
+  const loaderdiv = document.querySelector("#loader");
+  const parametersdiv = document.querySelector("#parameters");
+  const datafolderbutton = document.querySelector("#data-folder");
+  const runbutton = document.querySelector("#run-package");
+  const fieldsparent = document.querySelector("#parameter-fields");
+  const cancelbutton = document.querySelector("#cancel-run-package");
+  const resultdiv = document.querySelector("#result");
+
+  import('https://webr.r-wasm.org/latest/webr.mjs').then(async ({WebR}) => {
+    const webr = new WebR();
+    await webr.init();
+
+    loaderdiv.style.display = "none";
+    parametersdiv.style.display = "flex";
+    datafolderbutton.style.display = "none";
+
+    runbutton.addEventListener("click", async () => {
+      parametersdiv.style.display = "none";
+      document.querySelector("#loader p").innerText = "Running...";
+      loaderdiv.style.display = "block";
+      cancelbutton.style.display = "block";
+
+      const parameters = [
+        {% for parameter in iface.parameters %}
+
+        {% if parameter.type in ["string", "float", "int"] %}
+        document.querySelector("#parameter-{{parameter.name}}").value,
+        {% endif %}
+
+        {% endfor %}
+      ].join(',');
+
+      let result = await webr.evalR(
+        `{{iface.entrypoint}}(${parameters})`,
+        {
+          withAutoprint: true,
+        }
+      );
+      const value = (await result.toJs()).values;
+
+      loaderdiv.style.display = "none";
+      {% if iface.output == "output-html" %}
+      const range = document.createRange();
+      range.selectNode(resultdiv);
+      resultdiv.appendChild(range.createContextualFragment(value));
+      {% elif iface.output == "output-file" %}
+      
+      {% endif %}
+
+      resultdiv.style.display = "flex";
+    });
+
+    cancelbutton.addEventListener("click", async () => {
+      webr.interrupt();
+      cancelbutton.style.display = "none";
+      loaderdiv.style.display = "none";
+      parametersdiv.style.display = "flex";
+    });
+
+    let source = await fetch("/packages/file?package={{package}}");
+    await webr.evalR(await source.text());
+    fieldsparent.style.display = "flex";
+    runbutton.style.display = "block";
+  });
+</script>
+
+{% endblock %}
