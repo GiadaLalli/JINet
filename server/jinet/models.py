@@ -3,7 +3,7 @@
 from typing import List, Optional
 from datetime import datetime, timezone
 
-from sqlmodel import SQLModel, Field, JSON, Relationship
+from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, LargeBinary
 from sqlalchemy.types import TIMESTAMP
 from sqlalchemy.dialects.postgresql import JSONB
@@ -18,6 +18,7 @@ class UserBase(SQLModel):
     role: str = Field(nullable=False)
     picture: str = Field(nullable=False)
     sub: str = Field(nullable=False, index=True)
+    can_upload: bool = Field(default=False, nullable=False)
 
 
 class User(UserBase, table=True):

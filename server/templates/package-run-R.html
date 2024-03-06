@@ -21,21 +21,42 @@
     const webr = new WebR();
     await webr.init();
 
-    loaderdiv.style.display = "none";
-    parametersdiv.style.display = "flex";
-    datafolderbutton.style.display = "none";
+    Array.from(document.querySelectorAll("div[data-parameter=path]"))
+      .map((pathinput) => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.name = pathinput.dataset.parameterName;
+        input.addEventListener("change", () => {
+          const reader = new FileReader();
+          reader.onload = async (evt) => {
+            let bytes = new Uint8Array(evt.target.result.length);
+            Array.from(evt.target.result).forEach((_, i) => {
+              bytes[i] = evt.target.result.codePointAt(i);
+            });
+            await webr.FS.writeFile(pathinput.dataset.parameterName, bytes);
+          };
+          reader.readAsText(input.files[0]);
+        });
+        pathinput.appendChild(input);
+      });
 
     runbutton.addEventListener("click", async () => {
       parametersdiv.style.display = "none";
       document.querySelector("#loader p").innerText = "Running...";
       loaderdiv.style.display = "block";
       cancelbutton.style.display = "block";
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
 
       const parameters = [
         {% for parameter in iface.parameters %}
 
-        {% if parameter.type in ["string", "float", "int"] %}
+        {% if parameter.type in ["float", "int"] %}
         document.querySelector("#parameter-{{parameter.name}}").value,
+        {% elif parameter.type == "string" %}
+        `"${document.querySelector('#parameter-{{parameter.name}}')}.value"`,
+        {% elif parameter.type == "path" %}
+        `"parameter-{{parameter.name}}"`,
         {% endif %}
 
         {% endfor %}
@@ -55,7 +76,16 @@
       range.selectNode(resultdiv);
       resultdiv.appendChild(range.createContextualFragment(value));
       {% elif iface.output == "output-file" %}
-      
+      const download = document.createElement("a");
+      download.setAttribute("class", "uk-button uk-button-primary");
+      console.log(value);
+      const outdata = await webr.FS.readFile(...value);
+      console.log(typeof(outdata));
+      console.log(outdata);
+      download.href = window.URL.createObjectURL(new Blob([outdata]));
+      download.download = value[0];
+      download.innerText = "Download";
+      resultdiv.appendChild(download);
       {% endif %}
 
       resultdiv.style.display = "flex";
@@ -70,6 +100,9 @@
 
     let source = await fetch("/packages/file?package={{package}}");
     await webr.evalR(await source.text());
+    loaderdiv.style.display = "none";
+    parametersdiv.style.display = "flex";
+    datafolderbutton.style.display = "none";
     fieldsparent.style.display = "flex";
     runbutton.style.display = "block";
   });

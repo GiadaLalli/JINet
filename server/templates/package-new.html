@@ -6,7 +6,7 @@
 {% endblock %}
 {% block main %}
 <h1>Upload new package</h1>
-<form hx-post="/packages/validate" hx-target="this" hx-swap="outerHTML" hx-encoding="multipart/form-data">
+<form hx-post="/packages/validate" hx-target="this" hx-swap="outerHTML" hx-encoding="multipart/form-data" hx-on::afterSwap="scrollToTop()">
   <div class="uk-flex uk-margin uk-flex-middle">
     <span class="uk-label uk-margin-right">Runtime</span>
     <div>
@@ -153,7 +153,7 @@
     button.setAttribute("onclick", "remove(this, 0)");
 
     // Add a new row
-    parameterData = parameterData.concat([{name: "", type: "string", description: "", default: ""}]);
+    parameterData = parameterData.concat([{name: "", type: "string", description: null, default: null}]);
     const container = document.createElement("span");
     container.className = "uk-flex uk-margin-top";
     const name = document.createElement("input");
@@ -194,5 +194,11 @@
       update();
     }
   }
+
+  function scrollToTop() {
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }
+    
 </script>
 {% endblock %}

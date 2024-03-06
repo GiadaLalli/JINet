@@ -15,7 +15,7 @@
     </form>
   </div>
   <div class="uk-width-expand">
-    {% if user is defined %}
+    {% if user is defined and user.can_upload %}
     <a href="/packages/new" class="uk-icon-button" uk-icon="plus" title="Upload a package."></a>
     {% endif %}
   </div>

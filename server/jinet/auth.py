@@ -67,6 +67,7 @@ async def auth(request: Request, session: Session = Depends(database_session)):
     ).one_or_none()
     role = "user"
     name = info.get("nickname", None)
+    can_upload = False
 
     if db_user is None:
         # Create the user in the database
@@ -81,6 +82,7 @@ async def auth(request: Request, session: Session = Depends(database_session)):
     else:
         role = db_user.role
         name = db_user.username
+        can_upload = db_user.can_upload
 
     request.session["user"] = {
         "sub": info.get("sub", None),
@@ -88,6 +90,7 @@ async def auth(request: Request, session: Session = Depends(database_session)):
         "picture": info.get("picture", None),
         "role": role,
         "name": name,
+        "can_upload": can_upload,
     }
     return RedirectResponse(request.session.get("from", "/"))
 

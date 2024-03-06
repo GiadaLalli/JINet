@@ -29,6 +29,7 @@ def upgrade() -> None:
         sa.Column("role", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("picture", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("sub", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column("can_upload", sa.Boolean(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )

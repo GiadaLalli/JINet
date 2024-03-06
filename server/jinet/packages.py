@@ -80,9 +80,12 @@ async def listing(
 async def new(request: Request):
     """Create a new package."""
     user = auth.user(request)
-    return templates.TemplateResponse(
-        request=request, name="package-new.html", context={"user": user}
-    )
+    if user.get("can_upload", False):
+        return templates.TemplateResponse(
+            request=request, name="package-new.html", context={"user": user}
+        )
+    else:
+        return RedirectResponse(request.url_for("packages"))
 
 
 @router.post("/validate", response_class=HTMLResponse)
@@ -101,6 +104,8 @@ async def validate(
 ):
     """Validate a submitted package."""
     user = auth.user(request)
+    if not user.get("can_upload", False):
+        return RedirectResponse(request.url_for("packages"))
 
     # Validate the parameters
     try:
@@ -141,19 +146,26 @@ async def validate(
     previous_version = results.first()
 
     # Get ready to insert into the database
+    file_buffer = buf.read()
+    interface = {
+        "entrypoint": entrypoint,
+        "parameters": package_parameters,
+        "output": output,
+    }
+    tags = [Tag(name=tag.strip()) for tag in package_tags.split(",")]
+    print(
+        f"{package_name=}, {file_buffer=}, {package_description=} {previous_version.version + 1 if previous_version is not None else 1}, {runtime=}, {interface=}, {owner=}, {tags=}",
+        flush=True,
+    )
     package = Package(
         name=package_name,
-        data=buf.read(),
+        data=file_buffer,
         description=package_description,
         version=previous_version.version + 1 if previous_version is not None else 1,
         runtime=runtime,
-        interface={
-            "entrypoint": entrypoint,
-            "parameters": package_parameters,
-            "output": output,
-        },
+        interface=interface,
         owner=owner,
-        tags=[Tag(name=tag.strip()) for tag in package_tags.split(",")],
+        tags=tags,
     )
     session.add(package)
     await session.commit()
