@@ -13,6 +13,11 @@
 <li>
   <a href="/data">Sample Data</a>
 </li>
+{% if user is defined and user.role == "admin" %}
+<li>
+  <a href="/admin">Admin</a>
+</li>
+{% endif %}
 {% endblock %}
 {% block main %}
 <h1>Contributing</h1>
@@ -38,6 +43,7 @@
 </div>
 
 {% if user is defined and user.can_upload %}
+<hr class="uk-divider-icon uk-margin">
 <form hx-post="/packages/validate" hx-target="this" hx-swap="outerHTML" hx-encoding="multipart/form-data" hx-on::afterSwap="scrollToTop()">
   <div class="uk-flex uk-margin uk-flex-middle">
     <span class="uk-label uk-margin-right">Runtime</span>
@@ -64,7 +70,7 @@
   </div>
   <div class="uk-flex uk-margin uk-flex-middle">
     <label class="uk-label uk-margin-right" for="package-description">Description</label>
-    <textarea id="package-description" name="package-description" rows="20" cols="250"></textarea>
+    <textarea id="package-description" name="package-description" rows="20" cols="100"></textarea>
   </div>
   <div class="uk-flex uk-margin uk-flex-middle">
     <label class="uk-label uk-margin-right" for="package-tags">Tags</label>

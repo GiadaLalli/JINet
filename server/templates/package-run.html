@@ -1,9 +1,26 @@
 {% extends "_layout.html" %}
 {% block title %}Run{% endblock %}
 {% block nav %}
-<li><a href="/">Home</a></li>
-<li><a href="/packages">Packages</a></li>
-<li class="uk-active"><a>Run</a></li>
+<li>
+  <a href="/">Home</a>
+</li>
+<li>
+  <a href="/packages">Applications</a>
+</li>
+<li>
+  <a href="/contribute">Contribute</a>
+</li>
+<li>
+  <a href="/data">Sample Data</a>
+</li>
+<li class="uk-active">
+  <a>Run</a>
+</li>
+{% if user is defined and user.role == "admin" %}
+<li>
+  <a href="/admin">Admin</a>
+</li>
+{% endif %}
 {% endblock %}
 
 {% block main %}

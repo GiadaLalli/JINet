@@ -13,6 +13,11 @@
 <li>
   <a href="/data">Sample Data</a>
 </li>
+{% if user is defined and user.role == "admin" %}
+<li>
+  <a href="/admin">Admin</a>
+</li>
+{% endif %}
 {% endblock %}
 {% block main %}
 <div class="uk-grid">
