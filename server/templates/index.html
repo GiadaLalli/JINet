@@ -1,112 +1,57 @@
-{% extends "_layout.html" %} {% block title %}Home{% endblock %}
+{% extends "_layout.html" %}
+{% block title %}Home{% endblock %}
 {% block nav %}
 <li class="uk-active">
   <a>Home</a>
 </li>
 <li>
-  <a href="/packages">Packages</a>
+  <a href="/packages">Applications</a>
 </li>
 <li>
-  <a class="uk-disabled">Run</a>
+  <a href="/contribute">Contribute</a>
+</li>
+<li>
+  <a href="/data">Sample Data</a>
 </li>
 {% endblock %}
 {% block main %}
-<h1>Welcome to JINet</h1>
-<!-- <div class="uk-text-center uk-child-width-1-3" uk-grid=""> -->
-<!--   <div> -->
-<!--     <div class="uk-card uk-card-default"> -->
-<!--       <div class="uk-card-header"> -->
-<!--         <div class="uk-grid-small uk-flex-middle" uk-grid> -->
-<!--           <div class="uk-width-auto"><img alt="profile photo" class="uk-border-circle" width="40" height="40" src="https://picsum.photos/40/40"></div> -->
-<!--           <div class="uk-width-expand"> -->
-<!--             <h3 class="uk-card-title uk-margin-remove-bottom">Scatter Plot</h3> -->
-<!--             <p class="uk-text-meta uk-margin-remove-top"> -->
-<!--               By <a>@Giada</a> (version 1) -->
-<!--             </p> -->
-<!--             <span class="uk-badge">plotting</span> -->
-<!--           </div> -->
-<!--         </div> -->
-<!--       </div> -->
-<!--       <div class="uk-card-body"> -->
-<!--         <p> -->
-<!--           Generate an interactive scatter plot from tabular data. -->
-<!--         </p> -->
-<!--       </div> -->
-<!--       <div class="uk-card-footer"> -->
-<!--         <a href="#" class="uk-button uk-button-primary">Use</a> -->
-<!--       </div> -->
-<!--     </div> -->
-<!--   </div> -->
-<!--   <div> -->
-<!--     <div class="uk-card uk-card-default"> -->
-<!--       <div class="uk-card-header"> -->
-<!--         <div class="uk-grid-small uk-flex-middle" uk-grid=""> -->
-<!--           <div class="uk-width-auto"><img alt="profile photo" -->
-<!--           class="uk-border-circle" width="40" height="40" src= -->
-<!--           "https://picsum.photos/40/40"></div> -->
-<!--           <div class="uk-width-expand"> -->
-<!--             <h3 class="uk-card-title uk-margin-remove-bottom"> -->
-<!--             Fancy regression</h3> -->
-<!--             <p class="uk-text-meta uk-margin-remove-top">By -->
-<!--             <a>@Zuki</a> (version 5)</p><span class= -->
-<!--             "uk-badge">regression</span> -->
-<!--           </div> -->
-<!--         </div> -->
-<!--       </div> -->
-<!--       <div class="uk-card-body"> -->
-<!--         <p>Do a cool regression idk.</p> -->
-<!--       </div> -->
-<!--       <div class="uk-card-footer"> -->
-<!--         <a href="#" class="uk-button uk-button-primary">Use</a> -->
-<!--       </div> -->
-<!--     </div> -->
-<!--   </div> -->
-<!--   <div> -->
-<!--     <div class="uk-card uk-card-default"> -->
-<!--       <div class="uk-card-header"> -->
-<!--         <div class="uk-grid-small uk-flex-middle" uk-grid=""> -->
-<!--           <div class="uk-width-auto"><img alt="profile photo" -->
-<!--           class="uk-border-circle" width="40" height="40" src= -->
-<!--           "https://picsum.photos/40/40"></div> -->
-<!--           <div class="uk-width-expand"> -->
-<!--             <h3 class="uk-card-title uk-margin-remove-bottom"> -->
-<!--             Hello World</h3> -->
-<!--             <p class="uk-text-meta uk-margin-remove-top">By -->
-<!--             <a>@MaybeJustJames</a> (version 2)</p> -->
-<!--           </div> -->
-<!--         </div> -->
-<!--       </div> -->
-<!--       <div class="uk-card-body"> -->
-<!--         <p>Say hello world.</p> -->
-<!--       </div> -->
-<!--       <div class="uk-card-footer"> -->
-<!--         <a href="#" class="uk-button uk-button-primary">Use</a> -->
-<!--       </div> -->
-<!--     </div> -->
-<!--   </div> -->
-<!--   <div> -->
-<!--     <div class="uk-card uk-card-default"> -->
-<!--       <div class="uk-card-header"> -->
-<!--         <div class="uk-grid-small uk-flex-middle" uk-grid=""> -->
-<!--           <div class="uk-width-auto"><img alt="profile photo" -->
-<!--           class="uk-border-circle" width="40" height="40" src= -->
-<!--           "https://picsum.photos/40/40"></div> -->
-<!--           <div class="uk-width-expand"> -->
-<!--             <h3 class="uk-card-title uk-margin-remove-bottom"> -->
-<!--             Local script</h3> -->
-<!--             <p class="uk-text-meta uk-margin-remove-top">By -->
-<!--             <a>@Giada</a> (version 1)</p> -->
-<!--           </div> -->
-<!--         </div> -->
-<!--       </div> -->
-<!--       <div class="uk-card-body"> -->
-<!--         <p>Run your own script.</p> -->
-<!--       </div> -->
-<!--       <div class="uk-card-footer"> -->
-<!--         <a href="#" class="uk-button uk-button-primary">Use</a> -->
-<!--       </div> -->
-<!--     </div> -->
-<!--   </div> -->
-<!-- </div> -->
+<section class="uk-section uk-section-muted">
+  <div class="uk-container uk-container-xsmall uk-flex uk-flex-column uk-flex-between uk-flex-middle uk-height-medium">
+    <img alt="JINet Logo" src="static/jinet-logo.png">
+    <a href="/packages" class="uk-button uk-button-primary uk-border-rounded" style="background-color:#0e519f">Explore</a>
+  </div>
+</section>
+<section class="uk-section uk-section-default uk-background-muted">
+  <div class="uk-grid-collapse" uk-grid>
+    <div class="uk-width-1-2@m">
+      <div class="uk-padding uk-height-medium" style="background-color:#0e519f; color:white">
+        <p>
+          Self-contained, self-sustainable, client-based computation platform for clinical and multi-view data analysis in the healthcare context. JINet hosts numerous applications that you can run in the safety of your web browser without your data ever leaving your own machine. Applications are drawn from a wide range of sources including peer-reviewed pipelines, while citing original code.
+        </p>
+      </div>
+    </div>
+    <div class="uk-width-1-2@m">
+      <div class="uk-padding uk-background-default uk-height-medium" style="color:#0e519f">
+        <p>
+          Use programming languages you're familiar with to write applications. Python, R, Julia, and Javascript are supported runtimes.
+        </p>
+      </div>
+    </div>
+    <div class="uk-width-1-2@m">
+      <div class="uk-padding uk-background-default uk-height-medium" style="color:#0e519f">
+        <p>
+          This project implements a flexible and ever-evolving solution interoperability. JINet supports researchers' efforts by making software easily accessible through a simple point-and-click interface.
+        </p>
+      </div>
+    </div>
+    <div class="uk-width-1-2@m">
+      <div class="uk-padding uk-height-medium" style="background-color:#0e519f; color:white">
+        <p>
+          JINet is created by researchers for researchers, aimed at expediting advancements in science and shedding light on interesting yet not fully recognized methods. If you wish to support JINet, please consider submitting your wrapper through the dedicated <a href="/contribute" class="uk-link-text">contribute</a> section or by visiting our public <a href="https://github.com/GiadaLalli/JINet" class="uk-link-text">git</a> repository.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
 

@@ -46,3 +46,12 @@ async def packages(
     return templates.TemplateResponse(
         request=request, name="packages.html", context=auth.user_in_context(request)
     )
+
+
+@app.get("/contribute", response_class=HTMLResponse)
+async def contribute(request: Request):
+    """Documentation for createing a package."""
+    request.session["from"] = "/contribute"
+    return templates.TemplateResponse(
+        request=request, name="contribute.html", context=auth.user_in_context(request)
+    )
