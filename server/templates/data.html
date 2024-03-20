@@ -1,0 +1,51 @@
+{% extends "_layout.html" %}
+{% block title %}Contribute{% endblock %}
+{% block nav %}
+<li>
+  <a href="/">Home</a>
+</li>
+<li>
+  <a href="/packages">Applications</a>
+</li>
+<li>
+  <a href="/contribute">Contribute</a>
+</li>
+<li class="uk-active">
+  <a>Sample Data</a>
+</li>
+{% if user is defined and user.role == "admin" %}
+<li>
+  <a href="/admin">Admin</a>
+</li>
+{% endif %}
+{% endblock %}
+{% block main %}
+<h1>Example Data Formats</h1>
+<div class="uk-container uk-flex uk-flex-column uk-flex-middle">
+{% if user is defined and not user.can_upload %}
+<a class="uk-button uk-button-primary uk-border-rounded uk-margin" style="background-color:#0e519f">Request permission to submit</a>
+{% elif user is defined and user.can_upload %}
+<form hx-post="/data/new" hx-target="this" hx-swap="outerHTML" hx-encoding="multipart/form-data">
+  <div class="uk-margin">
+    <label for="file-data" class="uk-form-label">File</label>
+    <input id="file-data" type="file" name="file-data" class="uk-input">
+    <input type="submit" value="Add data">
+  </div>
+</form>
+{% endif %}
+
+<div uk-grid>
+  <div class="uk-margin uk-width-expand@s uk-width-1-4@m">
+    <form class="uk-search uk-search-default uk-width-expand">
+      <span uk-search-icon></span>
+      <input class="uk-search-input" type="search" placeholder="Search" aria-label="Search">
+    </form>
+  </div>
+</div>
+{% for data_item in data %}
+<div>
+  <a href="/data/file?name={{data_item.name}}" download="{{data_item.name}}">{{data_item.name}}</a>
+</div>
+{% endfor %}
+</div>
+{% endblock %}

@@ -26,12 +26,9 @@ from jinet import auth
 from jinet.templates import templates
 from jinet.db import database_session
 from jinet.models import Package, Tag, User
+from jinet.filesize import MAX_CONTENT_LEN, valid_content_len, read_upload_file
 
 router = APIRouter()
-
-
-# 100k
-MAX_CONTENT_LEN = 100_000
 
 
 @dataclass
@@ -49,11 +46,6 @@ def parse_package_name(name: str) -> Optional[PackageName]:
         return PackageName(user, package, int(version))
     except ValueError:
         return None
-
-
-async def valid_content_len(content_length: int = Header(..., lt=MAX_CONTENT_LEN)):
-    """Limit the Content-Length header to be < 100k."""
-    return content_length
 
 
 @router.get("/list", response_class=HTMLResponse)
@@ -122,18 +114,7 @@ async def validate(
     ).first()
 
     # Check file size by actually reading it.
-    buf = BytesIO()
-    actual_size = 0
-    for chunk in package_file.file:
-        actual_size += len(chunk)
-        if actual_size > MAX_CONTENT_LEN:
-            raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail="File too large.",
-            )
-
-        buf.write(chunk)
-    buf.seek(0)
+    file_buffer = read_upload_file(package_file)
 
     # Does this user already have a package by this name
     query = (
@@ -146,17 +127,12 @@ async def validate(
     previous_version = results.first()
 
     # Get ready to insert into the database
-    file_buffer = buf.read()
     interface = {
         "entrypoint": entrypoint,
         "parameters": package_parameters,
         "output": output,
     }
     tags = [Tag(name=tag.strip()) for tag in package_tags.split(",")]
-    print(
-        f"{package_name=}, {file_buffer=}, {package_description=} {previous_version.version + 1 if previous_version is not None else 1}, {runtime=}, {interface=}, {owner=}, {tags=}",
-        flush=True,
-    )
     package = Package(
         name=package_name,
         data=file_buffer,

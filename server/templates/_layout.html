@@ -21,7 +21,7 @@
           crossorigin="anonymous">
     {% block extra_head %}{% endblock %}
   </head>
-  <body>
+  <body class="uk-background-muted" uk-height-viewport="expand: true">
     <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
       <nav class="uk-navbar-container">
         <div class="uk-container">
@@ -38,7 +38,7 @@
                     <img alt="Profile image" class="uk-border-circle" width="40" height="40" src="{{user.picture}}" referrerpolicy="no-referrer" />
                   </div>
                 {% else %}
-                <a href="/login" class="uk-button uk-button-primary">Login</a>
+                <a href="/login" class="uk-button uk-button-primary uk-border-rounded" style="background-color:#0e519f">Login</a>
                 {% endif %}
                 </div>
               </ul>
@@ -47,13 +47,15 @@
         </div>
       </nav>
     </div>
-    <div class="uk-section-muted uk-height-viewport">
+    <div class="uk-section-muted">
       <div class="uk-container">
         {% block main %}{% endblock %}
       </div>
     </div>
-    <footer class="uk-section uk-container">
-      Demo of JINet &copy; 2024 Giada Lalli.
+    <footer class="uk-section uk-section-muted">
+      <div class="uk-container">
+        &copy; 2024 Giada Lalli.
+      </div>
     </footer>
 
     <script src="https://unpkg.com/htmx.org@1.9.10"

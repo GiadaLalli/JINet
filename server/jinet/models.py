@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime, timezone
 
 from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy import Column, LargeBinary
+from sqlalchemy import Column, LargeBinary, UniqueConstraint
 from sqlalchemy.types import TIMESTAMP
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -25,6 +25,12 @@ class User(UserBase, table=True):
     id: int = Field(nullable=False, primary_key=True)
     packages: List["Package"] = Relationship(
         back_populates="owner", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    sample_data: List["SampleData"] = Relationship(
+        back_populates="owner", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    permission_requests: List["PermissionRequest"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
 
@@ -75,3 +81,26 @@ class Rating(SQLModel, table=True):
         back_populates="ratings", sa_relationship_kwargs={"lazy": "selectin"}
     )
     rating: int = Field(nullable=False)
+
+
+class SampleData(SQLModel, table=True):
+    id: int = Field(nullable=False, primary_key=True)
+    data: bytes = Field(sa_column=Column("data", LargeBinary, nullable=False))
+    name: str = Field(nullable=False)
+    mime: str = Field(nullable=False)
+    owner_id: int = Field(foreign_key="user.id")
+    owner: User = Relationship(
+        back_populates="sample_data", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+
+
+class PermissionRequest(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("permission", "user_id"),)
+
+    id: int = Field(nullable=False, primary_key=True)
+    permission: str = Field(nullable=False)
+    user_id: int = Field(foreign_key="user.id")
+    user: User = Relationship(
+        back_populates="permission_requests",
+        sa_relationship_kwargs={"lazy": "selectin"},
+    )

@@ -1,112 +1,127 @@
-{% extends "_layout.html" %} {% block title %}Home{% endblock %}
+{% extends "_layout.html" %}
+{% block title %}Home{% endblock %}
 {% block nav %}
 <li class="uk-active">
   <a>Home</a>
 </li>
 <li>
-  <a href="/packages">Packages</a>
+  <a href="/packages">Applications</a>
 </li>
 <li>
-  <a class="uk-disabled">Run</a>
+  <a href="/contribute">Contribute</a>
 </li>
+<li>
+  <a href="/data">Sample Data</a>
+</li>
+{% if user is defined and user.role == "admin" %}
+<li>
+  <a href="/admin">Admin</a>
+</li>
+{% endif %}
 {% endblock %}
 {% block main %}
-<h1>Welcome to JINet</h1>
-<!-- <div class="uk-text-center uk-child-width-1-3" uk-grid=""> -->
-<!--   <div> -->
-<!--     <div class="uk-card uk-card-default"> -->
-<!--       <div class="uk-card-header"> -->
-<!--         <div class="uk-grid-small uk-flex-middle" uk-grid> -->
-<!--           <div class="uk-width-auto"><img alt="profile photo" class="uk-border-circle" width="40" height="40" src="https://picsum.photos/40/40"></div> -->
-<!--           <div class="uk-width-expand"> -->
-<!--             <h3 class="uk-card-title uk-margin-remove-bottom">Scatter Plot</h3> -->
-<!--             <p class="uk-text-meta uk-margin-remove-top"> -->
-<!--               By <a>@Giada</a> (version 1) -->
-<!--             </p> -->
-<!--             <span class="uk-badge">plotting</span> -->
-<!--           </div> -->
-<!--         </div> -->
-<!--       </div> -->
-<!--       <div class="uk-card-body"> -->
-<!--         <p> -->
-<!--           Generate an interactive scatter plot from tabular data. -->
-<!--         </p> -->
-<!--       </div> -->
-<!--       <div class="uk-card-footer"> -->
-<!--         <a href="#" class="uk-button uk-button-primary">Use</a> -->
-<!--       </div> -->
-<!--     </div> -->
-<!--   </div> -->
-<!--   <div> -->
-<!--     <div class="uk-card uk-card-default"> -->
-<!--       <div class="uk-card-header"> -->
-<!--         <div class="uk-grid-small uk-flex-middle" uk-grid=""> -->
-<!--           <div class="uk-width-auto"><img alt="profile photo" -->
-<!--           class="uk-border-circle" width="40" height="40" src= -->
-<!--           "https://picsum.photos/40/40"></div> -->
-<!--           <div class="uk-width-expand"> -->
-<!--             <h3 class="uk-card-title uk-margin-remove-bottom"> -->
-<!--             Fancy regression</h3> -->
-<!--             <p class="uk-text-meta uk-margin-remove-top">By -->
-<!--             <a>@Zuki</a> (version 5)</p><span class= -->
-<!--             "uk-badge">regression</span> -->
-<!--           </div> -->
-<!--         </div> -->
-<!--       </div> -->
-<!--       <div class="uk-card-body"> -->
-<!--         <p>Do a cool regression idk.</p> -->
-<!--       </div> -->
-<!--       <div class="uk-card-footer"> -->
-<!--         <a href="#" class="uk-button uk-button-primary">Use</a> -->
-<!--       </div> -->
-<!--     </div> -->
-<!--   </div> -->
-<!--   <div> -->
-<!--     <div class="uk-card uk-card-default"> -->
-<!--       <div class="uk-card-header"> -->
-<!--         <div class="uk-grid-small uk-flex-middle" uk-grid=""> -->
-<!--           <div class="uk-width-auto"><img alt="profile photo" -->
-<!--           class="uk-border-circle" width="40" height="40" src= -->
-<!--           "https://picsum.photos/40/40"></div> -->
-<!--           <div class="uk-width-expand"> -->
-<!--             <h3 class="uk-card-title uk-margin-remove-bottom"> -->
-<!--             Hello World</h3> -->
-<!--             <p class="uk-text-meta uk-margin-remove-top">By -->
-<!--             <a>@MaybeJustJames</a> (version 2)</p> -->
-<!--           </div> -->
-<!--         </div> -->
-<!--       </div> -->
-<!--       <div class="uk-card-body"> -->
-<!--         <p>Say hello world.</p> -->
-<!--       </div> -->
-<!--       <div class="uk-card-footer"> -->
-<!--         <a href="#" class="uk-button uk-button-primary">Use</a> -->
-<!--       </div> -->
-<!--     </div> -->
-<!--   </div> -->
-<!--   <div> -->
-<!--     <div class="uk-card uk-card-default"> -->
-<!--       <div class="uk-card-header"> -->
-<!--         <div class="uk-grid-small uk-flex-middle" uk-grid=""> -->
-<!--           <div class="uk-width-auto"><img alt="profile photo" -->
-<!--           class="uk-border-circle" width="40" height="40" src= -->
-<!--           "https://picsum.photos/40/40"></div> -->
-<!--           <div class="uk-width-expand"> -->
-<!--             <h3 class="uk-card-title uk-margin-remove-bottom"> -->
-<!--             Local script</h3> -->
-<!--             <p class="uk-text-meta uk-margin-remove-top">By -->
-<!--             <a>@Giada</a> (version 1)</p> -->
-<!--           </div> -->
-<!--         </div> -->
-<!--       </div> -->
-<!--       <div class="uk-card-body"> -->
-<!--         <p>Run your own script.</p> -->
-<!--       </div> -->
-<!--       <div class="uk-card-footer"> -->
-<!--         <a href="#" class="uk-button uk-button-primary">Use</a> -->
-<!--       </div> -->
-<!--     </div> -->
-<!--   </div> -->
-<!-- </div> -->
+<section class="uk-section uk-section-muted">
+  <div class="uk-container uk-container-xsmall uk-flex uk-flex-column uk-flex-between uk-flex-middle uk-height-medium">
+    <img alt="JINet Logo" src="static/jinet-logo.png">
+    <a href="/packages" class="uk-button uk-button-primary uk-border-rounded" style="background-color:#0e519f">Explore</a>
+  </div>
+</section>
+<section class="uk-section uk-section-default uk-background-muted">
+  <div class="uk-grid-collapse" uk-grid>
+    <div class="uk-width-1-2@m">
+      <div class="uk-padding uk-height-medium" style="background-color:#0e519f; color:white">
+        <p>
+          Self-contained, self-sustainable, client-based computation platform for clinical and multi-view data analysis in the healthcare context. JINet hosts numerous applications that you can run in the safety of your web browser without your data ever leaving your own machine. Applications are drawn from a wide range of sources including peer-reviewed pipelines, while citing original code.
+        </p>
+      </div>
+    </div>
+    <div class="uk-width-1-2@m">
+      <div class="uk-padding uk-background-default uk-height-medium" style="color:#0e519f">
+        <p>
+          Use programming languages you're familiar with to write applications. Python, R, Julia, and Javascript are supported runtimes.
+        </p>
+      </div>
+    </div>
+    <div class="uk-width-1-2@m">
+      <div class="uk-padding uk-background-default uk-height-medium" style="color:#0e519f">
+        <p>
+          This project implements a flexible and ever-evolving solution for interoperability. JINet supports researchers' efforts by making software easily accessible through a simple point-and-click interface.
+        </p>
+      </div>
+    </div>
+    <div class="uk-width-1-2@m">
+      <div class="uk-padding uk-height-medium" style="background-color:#0e519f; color:white">
+        <p>
+          JINet is created by researchers for researchers, aimed at expediting advancements in science and shedding light on interesting yet not fully recognized methods. If you wish to support JINet, please consider submitting your wrapper through the dedicated <a href="/contribute" class="uk-link-text">contribute</a> section or by visiting our public <a href="https://github.com/GiadaLalli/JINet" class="uk-link-text">git</a> repository.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="uk-section">
+  <div class="uk-container">
+    <div class="uk-child-width-1-3" uk-grid="masonry: pack">
+      <div>
+        <div class="uk-card uk-card-default uk-card-body">
+          <span uk-icon="icon: thumbnails; ratio: 3"></span>
+          <h4>Multi-view data</h4>
+          <p>
+            Multi-view data is like putting together pieces of a puzzle from different angles. In biomedical research, it's a collection of various types of information, such as genetics, imaging, and more, providing a full picture of complex biological systems.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="uk-card uk-card-default uk-card-body">
+          <span uk-icon="icon: file-text; ratio: 3"></span>
+          <h4>Clinical data</h4>
+          <p>
+            Clinical data is like a comprehensive health file, covering everything from basic patient info like age and gender to detailed records of medical history, tests, treatments, and outcomes. It's gathered from electronic health records, lab tests, doctor's notes, and other sources, helping healthcare professionals make informed decisions.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="uk-card uk-card-default uk-card-body">
+          <span uk-icon="icon: move; ratio: 3"></span>
+          <h4>Application</h4>
+          <p>
+            A function written in a supported programming language to perform a computation based on some user inputs. Applications only run on clients machines and data is never transferred to our server.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="uk-card uk-card-default uk-card-body">
+          <span uk-icon="icon: desktop; ratio: 3"></span>
+          <h4>Self-contained</h4>
+          <p>
+            A self-contained application is like a self-sufficient toolbox that has everything it needs inside. It's ready to run on its own, without requiring any additional tools or resources from outside. Just open it up, and it's ready to go!
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="uk-card uk-card-default uk-card-body">
+          <span uk-icon="icon: users; ratio: 3"></span>
+          <h4>Self-sustainable</h4>
+          <p>
+            A self-sustainable application is like a smart assistant that can take care of itself. It knows how to manage its resources efficiently, adapt to changes, and keep running smoothly without needing constant attention or assistance. It's like having a reliable helper who can handle tasks independently.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="uk-card uk-card-default uk-card-body">
+          <span uk-icon="icon: world; ratio: 3"></span>
+          <h4>Interoperability</h4>
+          <p>
+            The ability of two or more systems or components to exchange information and to use the information that has been exchanged (from <a href="https://ieeexplore.ieee.org/document/182763">IEEE ICD, 1991</a>).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
 
