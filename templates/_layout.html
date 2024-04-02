@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>JINet - {% block title %}{% endblock %}</title>
+    <title>JINet / {% block title %}{% endblock %}</title>
 
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.18.3/dist/js/uikit.min.js"
             integrity="sha256-ua+o4DxFP7aL6MHSmSBDP8NXfdk7TqxFaPrdva4RXIk="
@@ -17,12 +17,15 @@
     {% block extra_head %}{% endblock %}
   </head>
   <body class="uk-background-muted" uk-height-viewport="expand: true">
-    <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+    <header style="position: sticky; top: 0; z-index: 999">
       <nav class="uk-navbar-container">
         <div class="uk-container">
           <div class="uk-inline uk-width-expand" uk-navbar>
             <div class="uk-navbar-left">
               <ul class="uk-navbar-nav">
+                <a class="uk-navbar-item uk-logo" href="#">
+                  <img src="/static/jinet-logo.png" alt="JINet Logo Menu" width="168" height="40" decoding="async">
+                </a>
                 {% block nav %}{% endblock %}
                 <div class="uk-position-right uk-flex uk-flex-center uk-flex-middle">
                 {% if user is defined %}                
@@ -41,12 +44,12 @@
           </div>
         </div>
       </nav>
-    </div>
-    <div class="uk-section-muted">
+    </header>
+    <main class="uk-section-muted">
       <div class="uk-container">
         {% block main %}{% endblock %}
       </div>
-    </div>
+    </main>
     <footer class="uk-section uk-section-muted">
       <div class="uk-container">
         &copy; 2024 Giada Lalli.
@@ -56,5 +59,6 @@
     <script src="https://unpkg.com/htmx.org@1.9.10"
             integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
             crossorigin="anonymous"></script>
+    {% block scripts %}{% endblock %}
   </body>
 </html>

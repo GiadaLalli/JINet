@@ -1,11 +1,13 @@
 {% extends "package-run.html" %}
 
 {% block extra_head %}
+{% if iface.output == "output-html" %}
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+{% endif %}
 <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
 {% endblock %}
 
-{% block main %}
+{% block scripts %}
 {{ super() }}
 <script type="text/javascript">
   const loaderdiv = document.querySelector("#loader");
