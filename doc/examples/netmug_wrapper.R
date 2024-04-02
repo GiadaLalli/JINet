@@ -2,6 +2,9 @@
 # install dependencies
 webr::install("SmCCNet")
 webr::install("dynamicTreeCut")
+webr::install("PMA")
+
+requireNamespace("PMA", quietly = TRUE)
 
 # download the R script for netMUG
 download.file("https://raw.githubusercontent.com/ZuqiLi/netMUG/main/R/netMUG.R", "netmug.R")

@@ -10,6 +10,12 @@ Use `docker` to run an instance of the federated analysis distribution server.
 docker compose up -d
 ```
 
+### Build database migrations
+
+```bash
+DATABASE_URI="postgresql+asyncpg://postgres:postgres@localhost:5432/jinet" poetry run alembic revision --autogenerate -m "Your message here"
+```
+
 ## Running scripts
 
 Analysis scripts may be written in Python, R, Julia, or Javascript and output either a file for local storage or HTML (e.g. to display a plot).
