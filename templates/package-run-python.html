@@ -114,8 +114,10 @@
           {% for parameter in iface.parameters %}
           {% if parameter.type == "string" %}
           document.querySelector("#parameter-{{parameter.name}}").value,
-          {% elif parameter.type == "int" %}
-
+          {% elif parameter.type == "int" or parameter.type == "float" %}
+          Number(document.querySelector("#parameter-{{parameter.name}}").value),
+          {% elif parameter.type == "bool" %}
+          document.querySelector("#parameter-{{parameter.name}}").checked,
           {% elif parameter.type == "path" %}
           `${pathPrefix}/${document.querySelector("input[type='radio'][name='parameter-{{parameter.name}}']:checked").value}`,
           {% endif %}

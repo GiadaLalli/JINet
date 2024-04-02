@@ -55,6 +55,8 @@
         <input type="number" step="1" id="parameter-{{parameter.name}}" value="{{parameter.default if parameter.default is not none else 0}}" />
         {% elif parameter.type == "float" %}
         <input type="number" id="parameter-{{parameter.name}}" value="{{parameter.default if parameter.default is not none else 0.0}}" step="0.01" />
+        {% elif parameter.type == "bool" %}
+        <input type="checkbox" id="parameter-{{parameter.name}}" {% if parameter.default == true %}checked{% endif %}>
         {% elif parameter.type == "path" %}
         <div class="uk-height-max-medium uk-overflow-auto"
              data-parameter="path"
