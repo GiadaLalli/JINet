@@ -92,7 +92,7 @@ async def auth(request: Request, session: Session = Depends(database_session)):
         "name": name,
         "can_upload": can_upload,
     }
-    return RedirectResponse(request.session.get("from", "/"))
+    return RedirectResponse(request.url_for(request.session.get("from", "index")))
 
 
 @router.get("/me")

@@ -2,8 +2,6 @@
 
 from typing import Annotated, Optional
 from dataclasses import dataclass
-from statistics import mean
-from io import BytesIO
 import json
 
 from fastapi import (
@@ -11,28 +9,34 @@ from fastapi import (
     Depends,
     File,
     Form,
-    Header,
-    HTTPException,
     Request,
     Response,
-    status,
     UploadFile,
 )
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from sqlmodel import select, Session, desc
+from sqlmodel import select, Session, desc, and_
 
 from jinet import auth
 from jinet.templates import templates
 from jinet.db import database_session
 from jinet.models import Package, Tag, User
-from jinet.filesize import MAX_CONTENT_LEN, valid_content_len, read_upload_file
+from jinet.filesize import valid_content_len, read_upload_file
 
 router = APIRouter()
 
 
 @dataclass
 class PackageName:
+    """A fully qualified package name needs all of these fields.
+
+    Serialized, it looks like james.collier412/NetMUG@5
+    This would result in:
+      user: "james.collier412"
+      package: "NetMUG"
+      version:5
+    """
+
     user: str
     package: str
     version: int
@@ -50,21 +54,35 @@ def parse_package_name(name: str) -> Optional[PackageName]:
 
 @router.get("/list", response_class=HTMLResponse)
 async def listing(
-    request: Request, since: int = 0, session: Session = Depends(database_session)
+    request: Request,
+    since: int = 0,
+    term: Optional[str] = None,
+    session: Session = Depends(database_session),
 ):
     """Retrieve a paginated listing of all packages."""
-    query = (
+    # query = match term:
+    #   case tag_ if term.startswith("tag:"):
+    #       tag = tag_.removeprefix("tag:")
+    #       (
+    #          select(Package)
+    #          .distinct(Package.name, Package.owner_id)
+    #          .order_by(Package.name, Package.owner_id, desc(Package.version))
+    #          .where(Package.id >= since)
+    #          .limit(10)
+    #       )
+    #   case (tag_, None):
+    #       pass
+    packages = await session.exec(
         select(Package)
         .distinct(Package.name, Package.owner_id)
         .order_by(Package.name, Package.owner_id, desc(Package.version))
         .where(Package.id >= since)
         .limit(10)
     )
-    results = await session.exec(query)
     return templates.TemplateResponse(
         request=request,
         name="package-list.html",
-        context={"packages": results.all()},
+        context={"packages": packages.all()},
     )
 
 

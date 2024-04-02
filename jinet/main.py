@@ -15,7 +15,7 @@ from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
 from jinet import auth, data, packages
 from jinet.config import settings
 from jinet.db import database_session
-from jinet.models import SampleData
+from jinet.models import SampleData, Tag
 from jinet.templates import templates
 
 app = FastAPI(title="JINet")
@@ -45,13 +45,14 @@ async def index(request: Request):
 
 
 @app.get("/packages", response_class=HTMLResponse)
-async def packages(
-    request: Request,
-):
+async def packages(request: Request, session: Session = Depends(database_session)):
     """List of packages."""
     request.session["from"] = "packages"
+    tags = (await session.exec(select(Tag.name).distinct())).all()
     return templates.TemplateResponse(
-        request=request, name="packages.html", context=auth.user_in_context(request)
+        request=request,
+        name="packages.html",
+        context=auth.user_in_context(request) | {"tags": tags},
     )
 
 
@@ -60,7 +61,9 @@ async def contribute(request: Request):
     """Documentation for createing a package."""
     request.session["from"] = "contribute"
     return templates.TemplateResponse(
-        request=request, name="contribute.html", context=auth.user_in_context(request)
+        request=request,
+        name="contribute.html",
+        context=auth.user_in_context(request),
     )
 
 

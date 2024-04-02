@@ -1,21 +1,22 @@
 ---
-version: "3"
-
 services:
   web:
     container_name: 'web'
     build:
-      context: "./server"
+      context: "."
       dockerfile: "./Dockerfile.dev"
     command: >
       bash -c "poetry run alembic upgrade head &&
                poetry run hypercorn --bind 0.0.0.0:8000 --reload jinet.main:app"
     volumes:
-      - "./server:/jinet:rw"
+      - "./:/jinet:rw"
     ports:
       - "5000:8000"
     environment:
       - "DATABASE_URI=postgresql+asyncpg://postgres:postgres@database/jinet"
+      - "CLIENT_ID=${CLIENT_ID}"
+      - "CLIENT_SECRET=${CLIENT_SECRET}"
+      - "AUTH0_DOMAIN=${AUTH0_DOMAIN}"
     depends_on:
       - "database"
 
