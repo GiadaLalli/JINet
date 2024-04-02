@@ -1,8 +1,19 @@
-import pandas as pd
-import plotly
+from pathlib import Path
+
+from pandas import read_csv
 import plotly.express as px
 
-def scatter_matrix_px(df, target=None, dpi=300, height=600, width=800, title=None, legend_orientation="v", diagonal_visible=True):
+
+def scatter_matrix_px(
+    df,
+    target=None,
+    dpi=300,
+    height=600,
+    width=800,
+    title=None,
+    legend_orientation="v",
+    diagonal_visible=True,
+):
     # Extracting features and target
     if target is None:
         features = df.iloc[:, :-1]
@@ -17,11 +28,11 @@ def scatter_matrix_px(df, target=None, dpi=300, height=600, width=800, title=Non
     # Customizing the layout
     fig.update_layout(
         title={
-            'text': title,
-            'x': 0.5,  # Centered title
-            'y': 0.95,  # Adjust the y-coordinate as needed
-            'xanchor': 'center',
-            'yanchor': 'top',
+            "text": title,
+            "x": 0.5,  # Centered title
+            "y": 0.95,  # Adjust the y-coordinate as needed
+            "xanchor": "center",
+            "yanchor": "top",
         },
         width=width,
         height=height,
@@ -31,27 +42,42 @@ def scatter_matrix_px(df, target=None, dpi=300, height=600, width=800, title=Non
     # Update legend orientation
     if legend_orientation == "h":
         fig.update_layout(
-            legend_title_text='',  # Remove legend title
+            legend_title_text="",  # Remove legend title
             legend=dict(
                 orientation="h",  # Horizontal legend
                 yanchor="top",
                 y=-0.1,
                 xanchor="right",
-                x=1
-            )
+                x=1,
+            ),
         )
     elif legend_orientation == "v":
-        fig.update_layout(
-            legend_title_text=''
-        )
+        fig.update_layout(legend_title_text="")
 
-    # Show the plot
-    fig.show()
+    return fig
 
 
-# Example usage
-#url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
-#df = pd.read_csv(url, names=['sepal length','sepal width','petal length','petal width','target'])
-
-scatter_matrix_px(df, "target", dpi=350, height=800, width=1000, 
-                  title="Scatter Matrix Plot Example", legend_orientation="h", diagonal_visible=False)
+def main(
+    data: Path,
+    target: str,
+    dpi: int,
+    height: int,
+    width: int,
+    title: str,
+    legend_orientation: str,
+    diagonal_visible: bool,
+):
+    df = read_csv(data)
+    fig = scatter_matrix_px(
+        df=df,
+        target=target,
+        dpi=dpi,
+        height=height,
+        width=width,
+        title=title,
+        legend_orientation=legend_orientation,
+        diagonal_visible=diagonal_visible,
+    )
+    return fig.to_html(
+        include_plotlyjs=False, full_html=False, default_height=f"{height}px"
+    )
