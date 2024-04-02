@@ -28,11 +28,21 @@
     </form>
     <div class="uk-margin-top">
       {% for tag in tags %}
-      <a><span class="uk-badge">{{tag}}</span></a>
+      <a
+        hx-get="/packages/list?since=0&tag={{tag}}"
+        hx-target="#application-list">
+        <span class="uk-badge">{{tag}}</span>
+      </a>
       {% endfor %}
     </div>
     <hr class="uk-divider-icon">
   </div>
 </div>
-<div class="uk-text-center uk-child-width-1-1@s uk-child-width-1-3@m" uk-grid hx-get="/packages/list?since=0" hx-trigger="load"></div>
+<div
+  id="application-list"
+  class="uk-text-center uk-child-width-1-1@s uk-child-width-1-3@m"
+  uk-grid
+  hx-get="/packages/list?since=0"
+  hx-trigger="load">
+</div>
 {% endblock %}

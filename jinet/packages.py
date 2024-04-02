@@ -56,29 +56,49 @@ def parse_package_name(name: str) -> Optional[PackageName]:
 async def listing(
     request: Request,
     since: int = 0,
+    tag: Optional[str] = None,
     term: Optional[str] = None,
     session: Session = Depends(database_session),
 ):
     """Retrieve a paginated listing of all packages."""
-    # query = match term:
-    #   case tag_ if term.startswith("tag:"):
-    #       tag = tag_.removeprefix("tag:")
-    #       (
-    #          select(Package)
-    #          .distinct(Package.name, Package.owner_id)
-    #          .order_by(Package.name, Package.owner_id, desc(Package.version))
-    #          .where(Package.id >= since)
-    #          .limit(10)
-    #       )
-    #   case (tag_, None):
-    #       pass
-    packages = await session.exec(
-        select(Package)
-        .distinct(Package.name, Package.owner_id)
-        .order_by(Package.name, Package.owner_id, desc(Package.version))
-        .where(Package.id >= since)
-        .limit(10)
-    )
+    match (tag, term):
+        case (None, None):
+            sql_qry = (
+                select(Package)
+                .distinct(Package.name, Package.owner_id)
+                .order_by(Package.name, Package.owner_id, desc(Package.version))
+                .where(Package.id >= since)
+                .limit(10)
+            )
+        case (tg, None):
+            sql_qry = (
+                select(Package)
+                .distinct(Package.name, Package.owner_id)
+                .filter(Package.tags.any(Tag.name == tg))
+                .order_by(Package.name, Package.owner_id, desc(Package.version))
+                .where(Package.id >= since)
+                .limit(10)
+            )
+        case (None, query):
+            sql_qry = (
+                select(Package)
+                .distinct(Package.name, Package.owner_id)
+                .filter(Package.name.op("%")(query))
+                .order_by(Package.name, Package.owner_id, desc(Package.version))
+                .where(Package.id >= since)
+                .limit(10)
+            )
+        case (tg, query):
+            sql_qry = (
+                select(Package)
+                .distinct(Package.name, Package.owner_id)
+                .filter(Package.tags.any(Tag.name == tg))
+                .filter(Package.name.op("%")(query))
+                .order_by(Package.name, Package.owner_id, desc(Package.version))
+                .where(Package.id >= since)
+                .limit(10)
+            )
+    packages = await session.exec(sql_qry)
     return templates.TemplateResponse(
         request=request,
         name="package-list.html",
