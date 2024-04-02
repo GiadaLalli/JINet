@@ -9,6 +9,7 @@ async function initRuntime() {
     "numpy",
     "pandas",
     "scikit-learn",
+    "statsmodels",
   ]);
 
   await pyodide.runPythonAsync(`
@@ -21,7 +22,7 @@ let runtimeReady = initRuntime();
 self.dirListing = (path) => {
   let _this = self;
   return self.pyodide.FS.readdir(path).flatMap((name) => {
-    if (name === "." || name === "..") {
+    if (name.charAt(0) === "." || name === "..") {
       return [];
     }
     const newpath = `${path}/${name}`;
