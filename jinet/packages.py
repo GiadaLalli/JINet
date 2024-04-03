@@ -100,11 +100,22 @@ async def listing(
                 .where(Package.id >= since)
                 .limit(10)
             )
-    packages = await session.exec(sql_qry)
+    packages = (await session.exec(sql_qry)).all()
+    if tag is None:
+        tags = (await session.exec(select(Tag.name).distinct())).all()
+        filtered_by_tag = False
+    else:
+        tags = [tag]
+        filtered_by_tag = True
+
     return templates.TemplateResponse(
         request=request,
         name="package-list.html",
-        context={"packages": packages.all()},
+        context={
+            "packages": packages,
+            "tags": tags,
+            "filtered_by_tag": filtered_by_tag,
+        },
     )
 
 

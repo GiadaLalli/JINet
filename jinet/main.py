@@ -45,14 +45,13 @@ async def index(request: Request):
 
 
 @app.get("/packages", response_class=HTMLResponse)
-async def packages(request: Request, session: Session = Depends(database_session)):
+async def packages(request: Request):
     """List of packages."""
     request.session["from"] = "packages"
-    tags = (await session.exec(select(Tag.name).distinct())).all()
     return templates.TemplateResponse(
         request=request,
         name="packages.html",
-        context=auth.user_in_context(request) | {"tags": tags},
+        context=auth.user_in_context(request),
     )
 
 

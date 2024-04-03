@@ -1,39 +1,57 @@
+<div id="application-list">
+  <div class="uk-margin-top">
+    {% for tag in tags %}
+    <a
+      {% if filtered_by_tag %}
+      hx-get="/packages/list?since=0"
+      {% else %}
+      hx-get="/packages/list?since=0&tag={{tag}}"
+      {% endif %}
+      hx-target="#application-list">
+      <span class="uk-badge" {% if filtered_by_tag %}style="background-color:#ea3215"{% endif %}>{{tag}}</span>
+    </a>
+    {% endfor %}
+  </div>
+  <hr class="uk-divider-icon">
+  <div class="uk-text-center uk-child-width-1-1@s uk-child-width-1-3@m" uk-grid>
 {% for package in packages %}
-<div>
-  <div class="uk-card uk-card-default">
-    <div class="uk-card-header">
-      <div class="uk-grid-small uk-flex-middle" uk-grid>
-        <div class="uk-width-expand">
-          <h3 class="uk-card-title uk-margin-remove-bottom uk-margin-remove-top uk-inline">
-            {{package.name | escape}}
-          </h3>
-          <p class="uk-text-meta uk-margin-remove-top uk-margin-remove-bottom">
-            Version {{package.version}}
-          </p>
-          <div class="uk-width-auto">
-            <img alt="profile photo" class="uk-border-circle" width="40" height="40" src="{{package.owner.picture}}" title="@{{package.owner.username}}" referrerpolicy="no-referrer" />
+    <div>
+      <div class="uk-card uk-card-default">
+        <div class="uk-card-header">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-expand">
+              <h3 class="uk-card-title uk-margin-remove-bottom uk-margin-remove-top uk-inline">
+                {{package.name | escape}}
+              </h3>
+              <p class="uk-text-meta uk-margin-remove-top uk-margin-remove-bottom">
+                Version {{package.version}}
+              </p>
+              <div class="uk-width-auto">
+                <img alt="profile photo" class="uk-border-circle" width="40" height="40" src="{{package.owner.picture}}" title="@{{package.owner.username}}" referrerpolicy="no-referrer" />
+              </div>
+              <span>
+                {% for tag in package.tags %}
+                <span class="uk-badge">{{tag.name}}</span>
+                {% endfor %}
+              </span>
+            </div>
           </div>
-          <span>
-            {% for tag in package.tags %}
-            <span class="uk-badge">{{tag.name}}</span>
-            {% endfor %}
-          </span>
+        </div>
+        <div class="uk-card-body">
+          <p>{{package.short_description | escape}}</p>
+          <p class="uk-text-meta">
+            {% if package.rating is not none %}
+            Rating: {{package.rating}}
+            {% else %}
+            No rating yet
+            {% endif %}
+          </p>
+        </div>
+        <div class="uk-card-footer">
+          <a class="uk-button uk-button-primary" href="/packages/run?package={{package.owner.username}}/{{package.name}}@{{package.version}}&runtime={{package.runtime}}">Run</a>
         </div>
       </div>
     </div>
-    <div class="uk-card-body">
-      <p>{{package.short_description | escape}}</p>
-      <p class="uk-text-meta">
-        {% if package.rating is not none %}
-        Rating: {{package.rating}}
-        {% else %}
-        No rating yet
-        {% endif %}
-      </p>
-    </div>
-    <div class="uk-card-footer">
-      <a class="uk-button uk-button-primary" href="/packages/run?package={{package.owner.username}}/{{package.name}}@{{package.version}}&runtime={{package.runtime}}">Run</a>
-    </div>
+{% endfor %}
   </div>
 </div>
-{% endfor %}
