@@ -45,11 +45,14 @@ class PackageBase(SQLModel):
             nullable=False,
         ),
     )
+    short_description: Optional[str] = Field(default=None)
     description: Optional[str] = Field(default=None)
     version: int
     runtime: str
     interface: dict = Field(sa_column=Column("interface", JSONB, nullable=False))
     reviewed: bool = Field(default=False)
+    logo: Optional[bytes] = Field(sa_column=Column("logo", LargeBinary, nullable=True))
+    logo_mime: Optional[str] = Field(default=None)
 
 
 class Package(PackageBase, table=True):

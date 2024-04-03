@@ -49,7 +49,7 @@
       document.documentElement.scrollTop = 0;
 
       const parameters = [
-        {% for parameter in iface.parameters %}
+        {% for parameter in package.interface.parameters %}
 
         {% if parameter.type in ["float", "int"] %}
         document.querySelector("#parameter-{{parameter.name}}").value,
@@ -63,7 +63,7 @@
       ].join(',');
 
       let result = await webr.evalR(
-        `{{iface.entrypoint}}(${parameters})`,
+        `{{package.interface.entrypoint}}(${parameters})`,
         {
           withAutoprint: true,
         }
@@ -71,11 +71,11 @@
       const value = (await result.toJs()).values;
 
       loaderdiv.style.display = "none";
-      {% if iface.output == "output-html" %}
+      {% if package.interface.output == "output-html" %}
       const range = document.createRange();
       range.selectNode(resultdiv);
       resultdiv.appendChild(range.createContextualFragment(value));
-      {% elif iface.output == "output-file" %}
+      {% elif package.interface.output == "output-file" %}
       const download = document.createElement("a");
       download.setAttribute("class", "uk-button uk-button-primary");
       console.log(value);
@@ -98,7 +98,7 @@
       parametersdiv.style.display = "flex";
     });
 
-    let source = await fetch("/packages/file?package={{package}}");
+    let source = await fetch("/packages/file?package={{application}}");
     await webr.evalR(await source.text());
     loaderdiv.style.display = "none";
     parametersdiv.style.display = "flex";

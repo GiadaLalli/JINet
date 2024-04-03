@@ -14,9 +14,6 @@
             <img alt="profile photo" class="uk-border-circle" width="40" height="40" src="{{package.owner.picture}}" title="@{{package.owner.username}}" referrerpolicy="no-referrer" />
           </div>
           <span>
-            {% if package.runtime == "python-runtime" %}
-            <span class="uk-badge">Python</span>
-            {% endif %}
             {% for tag in package.tags %}
             <span class="uk-badge">{{tag.name}}</span>
             {% endfor %}
@@ -25,7 +22,7 @@
       </div>
     </div>
     <div class="uk-card-body">
-      <p>{{package.description | escape}}</p>
+      <p>{{package.short_description | escape}}</p>
       <p class="uk-text-meta">
         {% if package.rating is not none %}
         Rating: {{package.rating}}

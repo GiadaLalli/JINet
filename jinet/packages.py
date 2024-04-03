@@ -9,13 +9,15 @@ from fastapi import (
     Depends,
     File,
     Form,
+    HTTPException,
     Request,
     Response,
+    status,
     UploadFile,
 )
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from sqlmodel import select, Session, desc, and_
+from sqlmodel import select, Session, desc
 
 from jinet import auth
 from jinet.templates import templates
@@ -123,12 +125,16 @@ async def validate(
     request: Request,
     runtime: Annotated[str, Form()],
     package_name: Annotated[str, Form(alias="package-name")],
-    package_description: Annotated[str, Form(alias="package-description")],
-    package_tags: Annotated[str, Form(alias="package-tags")],
     package_file: Annotated[UploadFile, File(alias="package-file")],
-    entrypoint: Annotated[str, Form()],
     parameters: Annotated[str, Form()],
     output: Annotated[str, Form()],
+    package_headline: Annotated[Optional[str], Form(alias="package-headline")] = None,
+    package_description: Annotated[
+        Optional[str], Form(alias="package-description")
+    ] = None,
+    package_logo: Annotated[Optional[UploadFile], File(alias="package-logo")] = None,
+    package_tags: Annotated[Optional[str], Form(alias="package-tags")] = None,
+    entrypoint: Annotated[Optional[str], Form()] = None,
     content_size: int = Depends(valid_content_len),
     session: Session = Depends(database_session),
 ):
@@ -153,6 +159,12 @@ async def validate(
 
     # Check file size by actually reading it.
     file_buffer = read_upload_file(package_file)
+    if package_logo is not None:
+        logo_buffer = read_upload_file(package_logo)
+        logo_mime = package_logo.content_type
+    else:
+        logo_buffer = None
+        logo_mime = None
 
     # Does this user already have a package by this name
     query = (
@@ -166,18 +178,27 @@ async def validate(
 
     # Get ready to insert into the database
     interface = {
-        "entrypoint": entrypoint,
+        "entrypoint": entrypoint or "main",
         "parameters": package_parameters,
         "output": output,
     }
-    tags = [Tag(name=tag.strip()) for tag in package_tags.split(",")]
+
+    tags = (
+        [Tag(name=tag.strip()) for tag in package_tags.split(",")]
+        if package_tags is not None
+        else []
+    )
+
     package = Package(
         name=package_name,
         data=file_buffer,
+        short_description=package_headline,
         description=package_description,
         version=previous_version.version + 1 if previous_version is not None else 1,
         runtime=runtime,
         interface=interface,
+        logo=logo_buffer,
+        logo_mime=logo_mime,
         owner=owner,
         tags=tags,
     )
@@ -222,14 +243,14 @@ async def run(
                 request=request,
                 name="package-run-python.html",
                 context=auth.user_in_context(request)
-                | {"package": package, "iface": db_package.interface},
+                | {"application": package, "package": db_package},
             )
         case "R-runtime":
             return templates.TemplateResponse(
                 request=request,
                 name="package-run-R.html",
                 context=auth.user_in_context(request)
-                | {"package": package, "iface": db_package.interface},
+                | {"application": package, "package": db_package},
             )
         case _:
             return RedirectResponse(request.url_for("packages"))
@@ -245,7 +266,7 @@ async def file(
         await session.exec(select(User).where(User.username == pkgdef.user))
     ).first()
     if owner is None:
-        return RedirectResponse(request.url_for("packages"))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not a user")
 
     query = (
         select(Package)
@@ -256,6 +277,39 @@ async def file(
     result = await session.exec(query)
     db_package = result.first()
     if db_package is None:
-        return RedirectResponse(request.url_for("packages"))
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Not a package"
+        )
 
     return Response(content=db_package.data, media_type="text/x-python")
+
+
+@router.get("/logo")
+async def logo(request: Request, package: str, session=Depends(database_session)):
+    """Get a package logo if one exists."""
+    pkgdef = parse_package_name(package)
+    if (
+        owner := (
+            await session.exec(select(User).where(User.username == pkgdef.user))
+        ).first()
+    ) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not a user")
+
+    query = (
+        select(Package)
+        .where(Package.name == pkgdef.package)
+        .where(Package.owner_id == owner.id)
+        .where(Package.version == pkgdef.version)
+    )
+    result = await session.exec(query)
+    if (db_package := result.first()) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Not a package"
+        )
+
+    if db_package.logo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No logo for this package"
+        )
+
+    return Response(content=db_package.logo, media_type=db_package.logo_mime)

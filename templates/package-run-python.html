@@ -1,7 +1,7 @@
 {% extends "package-run.html" %}
 
 {% block extra_head %}
-{% if iface.output == "output-html" %}
+{% if package.interface.output == "output-html" %}
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
 {% endif %}
 <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
@@ -65,11 +65,11 @@
     case "run": {
       loaderdiv.style.display = "none";
 
-      {% if iface.output == "output-html" %}
+      {% if package.interface.output == "output-html" %}
       const range = document.createRange();
       range.selectNode(resultdiv);
       resultdiv.appendChild(range.createContextualFragment(value));
-      {% elif iface.output == "output-file" %}
+      {% elif package.interface.output == "output-file" %}
       worker.postMessage({msg: "read", value});
       {% endif %}
 
@@ -87,7 +87,7 @@
     }
   };
   worker.postMessage({msg: "interrupt_buffer", value: interruptBuffer});
-  worker.postMessage({msg: "source", value: "/packages/file?package={{package}}"});
+  worker.postMessage({msg: "source", value: "/packages/file?package={{application}}"});
 
   datafolderbutton.addEventListener("click", async () => {
     const dirHandle = await showDirectoryPicker();
@@ -111,9 +111,9 @@
     worker.postMessage({
       msg: "run",
       value: {
-        entry: "{{iface.entrypoint}}",
+        entry: "{{package.interface.entrypoint}}",
         parameters: [
-          {% for parameter in iface.parameters %}
+          {% for parameter in package.interface.parameters %}
           {% if parameter.type == "string" %}
           document.querySelector("#parameter-{{parameter.name}}").value,
           {% elif parameter.type == "int" or parameter.type == "float" %}
