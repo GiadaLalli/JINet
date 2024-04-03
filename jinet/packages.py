@@ -63,6 +63,8 @@ async def listing(
     session: Session = Depends(database_session),
 ):
     """Retrieve a paginated listing of all packages."""
+    if term == "":
+        term = None
     match (tag, term):
         case (None, None):
             sql_qry = (
@@ -76,8 +78,8 @@ async def listing(
             sql_qry = (
                 select(Package)
                 .distinct(Package.name, Package.owner_id)
-                .filter(Package.tags.any(Tag.name == tg))
                 .order_by(Package.name, Package.owner_id, desc(Package.version))
+                .where(Package.tags.any(Tag.name == tg))
                 .where(Package.id >= since)
                 .limit(10)
             )
@@ -85,8 +87,12 @@ async def listing(
             sql_qry = (
                 select(Package)
                 .distinct(Package.name, Package.owner_id)
-                .filter(Package.name.op("%")(query))
                 .order_by(Package.name, Package.owner_id, desc(Package.version))
+                .where(
+                    Package.name.icontains(query)
+                    | Package.short_description.icontains(query)
+                    | Package.description.icontains(query)
+                )
                 .where(Package.id >= since)
                 .limit(10)
             )
@@ -101,6 +107,7 @@ async def listing(
                 .limit(10)
             )
     packages = (await session.exec(sql_qry)).all()
+
     if tag is None:
         tags = (await session.exec(select(Tag.name).distinct())).all()
         filtered_by_tag = False

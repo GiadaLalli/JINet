@@ -23,8 +23,16 @@
 <div class="uk-margin uk-width-expand">
   <form class="uk-search uk-search-default uk-width-expand">
     <span uk-search-icon></span>
-    <input class="uk-search-input" type="search" placeholder="Search" aria-label="Search">
+    <input
+      class="uk-search-input"
+      type="search"
+      name="term"
+      placeholder="Search"
+      aria-label="Search"
+      hx-get="/packages/list?since=0"
+      hx-trigger="input changed delay:500ms, search"
+      hx-target="#application-list">
   </form>
 </div>
-<div hx-get="/packages/list?since=0" hx-trigger="load"></div>
+<div id="application-list" hx-get="/packages/list?since=0" hx-trigger="load"></div>
 {% endblock %}
