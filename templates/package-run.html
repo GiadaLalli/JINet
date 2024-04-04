@@ -39,20 +39,18 @@
       <div uk-spinner="ratio: 3"></div>
       <p>Loading...</p>
       <input type="button"
-             style="display:none"
-             class="uk-button uk-button-danger"
+             class="uk-button uk-button-danger jinet-hide"
              value="Cancel"
              id="cancel-run-package" />
     </div>
-    <div id="parameters" style="display: none; gap: 10%;" class="uk-flex uk-flex-column">
+    <div id="parameters" class="uk-flex uk-flex-column jinet-hide jinet-gap">
       <input type="button"
              name="data"
              id="data-folder"
              value="Select your local data folder"
              class="uk-button uk-button-default" />
       <fieldset id="parameter-fields"
-                style="display:none"
-                class="uk-flex uk-flex-column uk-flex-center">
+                class="uk-flex uk-flex-column uk-flex-center jinet-hide">
         <legend>Parameters</legend>
         {% for parameter in package.interface.parameters %}
         <fieldset class="uk-flex uk-flex-column">
@@ -79,12 +77,11 @@
         {% endfor %}
       </fieldset>
       <input type="button"
-             style="display:none"
-             class="uk-button uk-button-primary"
+             class="uk-button uk-button-primary jinet-hide"
              value="Run!"
              id="run-package" />
     </div>
-    <div id="result" style="display:none; line-height:initial" class="uk-flex uk-margin"></div>
+    <div id="result" class="uk-flex uk-margin jinet-hide jinet-line-height-initial"></div>
   </section>
 </div>
 {% endblock %}

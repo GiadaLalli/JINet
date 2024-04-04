@@ -94,7 +94,7 @@ self.onmessage = async (event) => {
       const { entry, parameters } = value;
       try {
         const pkg = self.pyodide.pyimport("script");
-        const result = pkg[entry](...parameters);
+        const result = await pkg[entry](...parameters);
         self.postMessage({ msg: "run", value: result });
       } catch (error) {
         self.postMessage({ msg: "error", value: error.message });

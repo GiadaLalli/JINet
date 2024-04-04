@@ -3,21 +3,26 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="htmx-config" content='{"includeIndicatorStyles":false}'>
     <title>JINet / {% block title %}{% endblock %}</title>
 
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.18.3/dist/js/uikit.min.js"
             integrity="sha256-ua+o4DxFP7aL6MHSmSBDP8NXfdk7TqxFaPrdva4RXIk="
             crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.18.3/dist/js/uikit-icons.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.18.3/dist/js/uikit-icons.min.js"
+            crossorigin="anonymous"></script>
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/uikit@3.18.3/dist/css/uikit.min.css"
           integrity="sha256-g8YvscCh8RVhep6YAOn4nrSWVcAYbNmDKcOUKyafvDA="
           crossorigin="anonymous">
+
+    <link rel="stylesheet"
+          href="/static/styles.css">
     {% block extra_head %}{% endblock %}
   </head>
   <body class="uk-background-muted" uk-height-viewport="expand: true">
-    <header style="position: sticky; top: 0; z-index: 999">
+    <header class="jinet-sticky-header">
       <nav class="uk-navbar-container">
         <div class="uk-container">
           <div class="uk-inline uk-width-expand" uk-navbar>
@@ -36,7 +41,7 @@
                     <img alt="Profile image" class="uk-border-circle" width="40" height="40" src="{{user.picture}}" referrerpolicy="no-referrer" />
                   </div>
                 {% else %}
-                <a href="/login" class="uk-button uk-button-primary uk-border-rounded" style="background-color:#0e519f">Login</a>
+                <a href="/login" class="uk-button uk-button-primary uk-border-rounded jinet-background-blue">Login</a>
                 {% endif %}
                 </div>
               </ul>

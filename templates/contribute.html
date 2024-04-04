@@ -23,7 +23,9 @@
 <h1>Contributing</h1>
 <div class="uk-container uk-flex uk-flex-column uk-flex-middle">
 {% if user is defined and not user.can_upload %}
-<a class="uk-button uk-button-primary uk-border-rounded" style="background-color:#0e519f">Request permission to submit applications</a>
+<a class="uk-button uk-button-primary uk-border-rounded jinet-background-blue">
+  Request permission to submit applications
+</a>
 {% endif %}
 <p>
   You will write a script (called an "Application") that defines a single entry-point function. You can call the entry-point function any valid function name. All computation should occur within that function though you may set up the environment at the top level (such as installing dependencies). You may also define other helper functions at the top-level.

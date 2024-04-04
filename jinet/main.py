@@ -11,6 +11,7 @@ from sqlmodel import select, Session, asc
 from starlette.middleware.sessions import SessionMiddleware
 from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
 from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
+from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
 from jinet import auth, data, js, packages
 from jinet.config import settings
@@ -20,6 +21,41 @@ from jinet.templates import templates
 
 app = FastAPI(title="JINet")
 app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
+app.add_middleware(
+    ContentSecurityPolicy,
+    Option={
+        "default-src": ["'none'"],
+        "script-src": [
+            "'self'",
+            "'unsafe-eval'",  # For Webassembly on Chromium
+            "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
+            "https://webr.r-wasm.org",
+            "https://cdn.plot.ly",
+        ],
+        "style-src": [
+            "'self'",
+            "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
+            "https://cdn.jsdelivr.net",
+        ],
+        "img-src": [
+            "'self'",
+            "data: w3.org/svg/2000",
+            "https://*.googleusercontent.com",
+        ],
+        "connect-src": [
+            "'self'",
+            "https://*.r-wasm.org",
+            "https://cdn.jsdelivr.net",
+            "https://pypi.org",
+            "https://files.pythonhosted.org",
+            "https://raw.githubusercontent.com",
+        ],
+        "child-src": ["'self'"],
+        "worker-src": ["'self'", "blob:"],
+    },
+)
 app.add_middleware(
     CrossOriginEmbedderPolicy, Option={"Cross-Origin-Embedder-Policy": "credentialless"}
 )

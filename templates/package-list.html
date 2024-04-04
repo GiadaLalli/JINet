@@ -8,7 +8,7 @@
       hx-get="/packages/list?since=0&tag={{tag}}"
       {% endif %}
       hx-target="#application-list">
-      <span class="uk-badge" {% if filtered_by_tag %}style="background-color:#ea3215"{% endif %}>{{tag}}</span>
+      <span class="uk-badge {% if filtered_by_tag %}jinet-background-red{% endif %}">{{tag}}</span>
     </a>
     {% endfor %}
   </div>

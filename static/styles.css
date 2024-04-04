@@ -1,0 +1,44 @@
+.htmx-indicator {
+  opacity: 0;
+  transition: opacity 200ms ease-in;
+}
+.htmx-request .htmx-indicator {
+  opacity: 1;
+}
+.htmx-request.htmx-indicator {
+  opacity: 1;
+}
+
+.jinet-background-blue {
+  background-color: #0e519f !important;
+}
+
+.jinet-background-red {
+  background-color: #f0506e;
+}
+
+.jinet-foreground-blue {
+  color: #0e519f;
+}
+
+.jinet-foreground-white {
+  color: white;
+}
+
+.jinet-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.jinet-hide {
+  display: none;
+}
+
+.jinet-line-height-initial {
+  line-height: initial;
+}
+
+.jinet-gap {
+  gap: 10%;
+}

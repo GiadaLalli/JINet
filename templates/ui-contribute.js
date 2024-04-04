@@ -106,7 +106,7 @@ function add(index) {
   const btn = document.createElement("a");
   btn.className = "uk-icon-button uk-margin-left";
   btn.setAttribute("uk-icon", "plus");
-  btn.setAttribute("onclick", `add(${index + 1})`);
+  btn.addEventListener("click", () => add(index + 1));
   container.appendChild(btn);
 
   document.getElementById("parameter-fields").appendChild(container);
