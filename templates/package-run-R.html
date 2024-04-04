@@ -27,16 +27,15 @@
         const input = document.createElement("input");
         input.type = "file";
         input.name = pathinput.dataset.parameterName;
-        input.addEventListener("change", () => {
+        input.setAttribute("id", pathinput.dataset.parameterName);
+        input.addEventListener("change", (chng) => {
           const reader = new FileReader();
+          const filename = chng.target.files[0].name;
           reader.onload = async (evt) => {
-            let bytes = new Uint8Array(evt.target.result.length);
-            Array.from(evt.target.result).forEach((_, i) => {
-              bytes[i] = evt.target.result.codePointAt(i);
-            });
-            await webr.FS.writeFile(pathinput.dataset.parameterName, bytes);
+            let bytes = new Uint8Array(evt.target.result);
+            await webr.FS.writeFile(filename, bytes);
           };
-          reader.readAsText(input.files[0]);
+          reader.readAsArrayBuffer(input.files[0]);
         });
         pathinput.appendChild(input);
       });
@@ -51,15 +50,13 @@
 
       const parameters = [
         {% for parameter in package.interface.parameters %}
-
         {% if parameter.type in ["float", "int"] %}
         document.querySelector("#parameter-{{parameter.name}}").value,
         {% elif parameter.type == "string" %}
-        `"${document.querySelector('#parameter-{{parameter.name}}')}.value"`,
+        `"${document.querySelector('#parameter-{{parameter.name}}').value}"`,
         {% elif parameter.type == "path" %}
-        `"parameter-{{parameter.name}}"`,
+        `"${document.querySelector('#parameter-{{parameter.name}}').value.substring(12)}"`,
         {% endif %}
-
         {% endfor %}
       ].join(',');
 

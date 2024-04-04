@@ -11,18 +11,24 @@ webr::install("KRLS")
 webr::install("stats")
 webr::install("anocva")
 webr::install("data.table")
+webr::install("zip")
 
 # download the R script for netANOVA initialization function
 download.file("https://raw.githubusercontent.com/DianeDuroux/netANOVA/main/netANOVA.R", "netanova.R", method = "auto")
 source("netanova.R")
 
+library("data.table")
+
 #Main function
-netanovaPreprocessing <- function(path, meth){
-  list_of_files=unzip(path, list = TRUE)$Name
-  list_of_files <- list_of_files[grep("\\.csv$|\\.txt$", list_of_files)]
+netanovaPreprocessing <- function(zip_archive, meth){
+  list_of_files <- zip::zip_list(zip_archive)
+  list_of_files <- list_of_files[grep("\\.csv$|\\.txt$", list_of_files$filename),]$filename
+
+  exdir <- "data"
+  zip::unzip(zip_archive, exdir = exdir)
   data <- list()
   for (file in list_of_files) {   # Iterate over each CSV file and load it
-    data[[file]] <- fread(unzip(path, files = file))     # Read the CSV file and append to the data list
+    data[[file]] <- fread(file.path(exdir, file))     # Read the CSV file and append to the data list
   }
   data <- lapply(data, function(x) as.matrix(x))
   res <- initialization(data, meth)[[3]]
