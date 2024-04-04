@@ -12,10 +12,10 @@ from starlette.middleware.sessions import SessionMiddleware
 from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
 from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
 
-from jinet import auth, data, packages
+from jinet import auth, data, js, packages
 from jinet.config import settings
 from jinet.db import database_session
-from jinet.models import SampleData, Tag
+from jinet.models import SampleData
 from jinet.templates import templates
 
 app = FastAPI(title="JINet")
@@ -32,6 +32,7 @@ api_router = APIRouter()
 api_router.include_router(auth.router)
 api_router.include_router(packages.router, prefix="/packages")
 api_router.include_router(data.router, prefix="/data")
+api_router.include_router(js.router)
 app.include_router(api_router)
 
 

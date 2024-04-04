@@ -234,7 +234,6 @@ async def validate(
 async def run(
     request: Request,
     package: str,
-    runtime: str,
     session: Session = Depends(database_session),
 ):
     """Run a package in the users browser."""
@@ -253,9 +252,8 @@ async def run(
     )
     result = await session.exec(query)
     db_package = result.first()
-    print(db_package.interface)
 
-    match runtime:
+    match db_package.runtime:
         case "python-runtime":
             return templates.TemplateResponse(
                 request=request,
