@@ -82,7 +82,7 @@
       console.log(outdata);
       download.href = window.URL.createObjectURL(new Blob([outdata]));
       download.download = value[0];
-      download.innerText = "Download";
+      download.innerText = `Download ${value[0]}`;
       resultdiv.appendChild(download);
       {% endif %}
 

@@ -81,6 +81,7 @@
       download.setAttribute("class", "uk-button uk-button-primary");
       download.href = window.URL.createObjectURL(value.data);
       download.download = value.filename;
+      download.innerText = `Download ${value.filename}`;
       resultdiv.appendChild(download);
       break;
     }
