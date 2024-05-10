@@ -81,7 +81,10 @@
              value="Run!"
              id="run-package" />
     </div>
-    <div id="result" class="uk-flex uk-margin jinet-hide jinet-line-height-initial"></div>
+    <div id="result" class="uk-flex uk-flex-column uk-margin jinet-hide jinet-line-height-initial">
+      <span class="uk-flex uk-flex-between uk-flex-middle"><h2>Results</h2><button class="uk-button uk-button-default uk-margin-bottom"><span uk-icon="icon: cloud-upload"></span>Share result</button></span>
+      <div id="result-contents"></div>
+    </div>
   </section>
 </div>
 {% endblock %}

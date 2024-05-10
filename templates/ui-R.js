@@ -5,6 +5,7 @@ const runbutton = document.querySelector("#run-package");
 const fieldsparent = document.querySelector("#parameter-fields");
 const cancelbutton = document.querySelector("#cancel-run-package");
 const resultdiv = document.querySelector("#result");
+const resultContentsDiv = document.querySelector("#result-contents");
 
 import("https://webr.r-wasm.org/latest/webr.mjs").then(async ({ WebR }) => {
   const webr = new WebR();
@@ -61,8 +62,8 @@ import("https://webr.r-wasm.org/latest/webr.mjs").then(async ({ WebR }) => {
     loaderdiv.style.display = "none";
     //  {% if package.interface.output == "output-html" %}
     const range = document.createRange();
-    range.selectNode(resultdiv);
-    resultdiv.appendChild(range.createContextualFragment(value));
+    range.selectNode(resultContentsDiv);
+    resultContentsDiv.appendChild(range.createContextualFragment(value));
     //  {% elif package.interface.output == "output-file" %}
     const download = document.createElement("a");
     download.setAttribute("class", "uk-button uk-button-primary");
@@ -73,7 +74,7 @@ import("https://webr.r-wasm.org/latest/webr.mjs").then(async ({ WebR }) => {
     download.href = window.URL.createObjectURL(new Blob([outdata]));
     download.download = value[0];
     download.innerText = `Download ${value[0]}`;
-    resultdiv.appendChild(download);
+    resultContentsDiv.appendChild(download);
     //  {% endif %}
 
     resultdiv.style.display = "flex";

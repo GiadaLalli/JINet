@@ -4,6 +4,7 @@ const datafolderbutton = document.querySelector("#data-folder");
 const runbutton = document.querySelector("#run-package");
 const fieldsparent = document.querySelector("#parameter-fields");
 const resultdiv = document.querySelector("#result");
+const resultContentsDiv = document.querySelector("#result-contents")
 const cancelbutton = document.querySelector("#cancel-run-package");
 let pathPrefix = "";
 
@@ -56,8 +57,8 @@ worker.onmessage = (evt) => {
 
       // {% if package.interface.output == "output-html" %}
       const range = document.createRange();
-      range.selectNode(resultdiv);
-      resultdiv.appendChild(range.createContextualFragment(value));
+      range.selectNode(resultContentsDiv);
+      resultContentsDiv.appendChild(range.createContextualFragment(value));
       // {% elif package.interface.output == "output-file" %}
       worker.postMessage({ msg: "read", value });
       // {% endif %}
@@ -71,7 +72,7 @@ worker.onmessage = (evt) => {
       download.href = window.URL.createObjectURL(value.data);
       download.download = value.filename;
       download.innerText = `Download ${value.filename}`;
-      resultdiv.appendChild(download);
+      resultContentsDiv.appendChild(download);
       break;
     }
   }
