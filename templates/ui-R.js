@@ -71,6 +71,7 @@ import("https://webr.r-wasm.org/latest/webr.mjs").then(async ({ WebR }) => {
     const outdata = await webr.FS.readFile(...value);
     console.log(typeof outdata);
     console.log(outdata);
+    window.filedata = outdata.buffer;
     download.href = window.URL.createObjectURL(new Blob([outdata]));
     download.download = value[0];
     download.innerText = `Download ${value[0]}`;

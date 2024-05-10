@@ -82,9 +82,19 @@
              id="run-package" />
     </div>
     <div id="result" class="uk-flex uk-flex-column uk-margin jinet-hide jinet-line-height-initial">
-      <span class="uk-flex uk-flex-between uk-flex-middle"><h2>Results</h2><button class="uk-button uk-button-default uk-margin-bottom"><span uk-icon="icon: cloud-upload"></span>Share result</button></span>
+      <span class="uk-flex uk-flex-between uk-flex-middle">
+        <h2>Results</h2>
+        <button id="share-button" class="uk-button uk-button-default uk-margin-bottom"><span uk-icon="icon: cloud-upload"></span>Share result</button>
+        <form id="share-passphrase-ui" class="jinet-hide" hx-post="/share" hx-encoding="multipart/form-data">
+          <input id="share-passphrase" type="password" placeholder="Passphrase">
+          <input type="hidden" name="output-type" value="{{ package.interface.output }}">
+          <input type="hidden" id="output-data" name="output-data" value="">
+          <input type="submit" value="Share" class="uk-button uk-button-primary">
+        </form>
+      </span>
       <div id="result-contents"></div>
     </div>
   </section>
 </div>
+<script type="module" src="/js/share.js"></script>
 {% endblock %}

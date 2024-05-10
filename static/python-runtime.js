@@ -106,7 +106,7 @@ self.onmessage = async (event) => {
         msg: "read",
         value: {
           filename: value,
-          data: new Blob([self.pyodide.FS.readFile(value)]),
+          data: self.pyodide.FS.readFile(value),
         },
       });
       break;

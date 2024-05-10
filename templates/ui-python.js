@@ -69,7 +69,8 @@ worker.onmessage = (evt) => {
     case "read": {
       const download = document.createElement("a");
       download.setAttribute("class", "uk-button uk-button-primary");
-      download.href = window.URL.createObjectURL(value.data);
+      window.filedata = value.data.buffer;
+      download.href = window.URL.createObjectURL(new Blob([value.data]));
       download.download = value.filename;
       download.innerText = `Download ${value.filename}`;
       resultContentsDiv.appendChild(download);
