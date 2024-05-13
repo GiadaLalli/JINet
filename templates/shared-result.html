@@ -1,0 +1,47 @@
+{% extends "_layout.html" %}
+{% block title %}Shared Results{% endblock %}
+{% block nav %}
+<li>
+  <a href="/">Home</a>
+</li>
+<li>
+  <a href="/packages">Applications</a>
+</li>
+<li>
+  <a href="/contribute">Contribute</a>
+</li>
+<li>
+  <a href="/data">Sample Data</a>
+</li>
+<li class="uk-active">
+  <a>Results</a>
+</li>
+{% if user is defined and user.role == "admin" %}
+<li>
+  <a href="/admin">Admin</a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block main %}
+<div class="uk-flex uk-flex-column">
+  <section>
+    <h1>Shared Results</h1>
+    <p>Shared by @{{share.owner.username}} on {{share.created}}</p>
+  </section>
+  <section id="passphrase-ui">
+    <div>
+      <input id="share-passphrase" type="password" placeholder="Passphrase">
+      <input type="button" id="view-results" value="View results" class="uk-button uk-button-primary">
+      <input id="checksum" type="hidden" value="{{share.checksum}}">
+      <input id="data" type="hidden" value="{{share.data}}">
+      <input id="output" type="hidden" value="{{share.output}}">
+      {% if share.output == "output-file" %}
+      <input id="filename" type="hidden" value="{{share.filename}}">
+      {% endif %}
+    </div>
+  </section>
+  <section id="results-ui"></section>
+</div>
+<script type="module" src="/js/share.js"></script>
+{% endblock %}

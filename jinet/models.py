@@ -2,6 +2,7 @@
 
 from typing import List, Optional
 from datetime import datetime, timezone
+import uuid as uuid_pkg
 
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, LargeBinary, UniqueConstraint
@@ -31,6 +32,9 @@ class User(UserBase, table=True):
     )
     permission_requests: List["PermissionRequest"] = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    shared: List["ShareData"] = Relationship(
+        back_populates="owner", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
 
@@ -65,6 +69,9 @@ class Package(PackageBase, table=True):
         back_populates="package", sa_relationship_kwargs={"lazy": "selectin"}
     )
     ratings: List["Rating"] = Relationship(
+        back_populates="package", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    shares: List["ShareData"] = Relationship(
         back_populates="package", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
@@ -106,4 +113,31 @@ class PermissionRequest(SQLModel, table=True):
     user: User = Relationship(
         back_populates="permission_requests",
         sa_relationship_kwargs={"lazy": "selectin"},
+    )
+
+
+class ShareData(SQLModel, table=True):
+    """Stores encrypted data for sharing."""
+
+    id: int = Field(nullable=False, primary_key=True)
+    reference: uuid_pkg.UUID = Field(default_factory=uuid_pkg.uuid4, nullable=False)
+    output: str = Field(nullable=False)
+    filename: Optional[str] = Field(nullable=True, default=None)
+    checksum: str = Field(nullable=False)
+    data: str = Field(nullable=False)
+    owner_id: int = Field(foreign_key="user.id")
+    owner: User = Relationship(
+        back_populates="shared", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    package_id: int = Field(foreign_key="package.id")
+    package: Package = Relationship(
+        back_populates="shares", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    created: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(
+            "created",
+            type_=TIMESTAMP(timezone=True),
+            nullable=False,
+        ),
     )

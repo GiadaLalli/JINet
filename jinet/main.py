@@ -13,7 +13,7 @@ from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
 from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
 from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
-from jinet import auth, data, js, packages
+from jinet import auth, data, js, packages, share
 from jinet.config import settings
 from jinet.db import database_session
 from jinet.models import SampleData
@@ -69,6 +69,7 @@ api_router.include_router(auth.router)
 api_router.include_router(packages.router, prefix="/packages")
 api_router.include_router(data.router, prefix="/data")
 api_router.include_router(js.router)
+api_router.include_router(share.router)
 app.include_router(api_router)
 
 

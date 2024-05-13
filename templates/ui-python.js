@@ -4,7 +4,7 @@ const datafolderbutton = document.querySelector("#data-folder");
 const runbutton = document.querySelector("#run-package");
 const fieldsparent = document.querySelector("#parameter-fields");
 const resultdiv = document.querySelector("#result");
-const resultContentsDiv = document.querySelector("#result-contents")
+const resultContentsDiv = document.querySelector("#result-contents");
 const cancelbutton = document.querySelector("#cancel-run-package");
 let pathPrefix = "";
 
@@ -70,6 +70,7 @@ worker.onmessage = (evt) => {
       const download = document.createElement("a");
       download.setAttribute("class", "uk-button uk-button-primary");
       window.filedata = value.data.buffer;
+      window.filename = value.filename;
       download.href = window.URL.createObjectURL(new Blob([value.data]));
       download.download = value.filename;
       download.innerText = `Download ${value.filename}`;

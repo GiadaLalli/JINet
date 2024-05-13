@@ -85,10 +85,12 @@
       <span class="uk-flex uk-flex-between uk-flex-middle">
         <h2>Results</h2>
         <button id="share-button" class="uk-button uk-button-default uk-margin-bottom"><span uk-icon="icon: cloud-upload"></span>Share result</button>
-        <form id="share-passphrase-ui" class="jinet-hide" hx-post="/share" hx-encoding="multipart/form-data">
+        <form id="share-passphrase-ui" class="jinet-hide" hx-post="/share?application={{ application }}" hx-encoding="multipart/form-data" hx-target="this" hx-swap="outerHTML">
           <input id="share-passphrase" type="password" placeholder="Passphrase">
           <input type="hidden" name="output-type" value="{{ package.interface.output }}">
           <input type="hidden" id="output-data" name="output-data" value="">
+          <input type="hidden" id="checksum" name="checksum" value="">
+          <input type="hidden" id="filename" name="filename" value="">
           <input type="submit" value="Share" class="uk-button uk-button-primary">
         </form>
       </span>
@@ -96,5 +98,5 @@
     </div>
   </section>
 </div>
-<script type="module" src="/js/share.js"></script>
+<script type="module" src="/js/share.js?application={{ application }}"></script>
 {% endblock %}
