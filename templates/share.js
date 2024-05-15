@@ -87,11 +87,17 @@ document
 document.querySelector("#view-results").addEventListener("click", async () => {
   const passphrase = document.querySelector("#share-passphrase").value;
   const data = decodeData(document.querySelector("#data").value);
-  const checksum = decodeData(document.querySelector("#checksum").value);
+  const checksum = document.querySelector("#checksum").value;
   const output = document.querySelector("#output").value;
 
   const key = await deriveKey(passphrase);
   const result = await decrypt(data, key);
+
+  if (encodeData(await crypto.subtle.digest("SHA-256", result)) === checksum) {
+    document.querySelector("#verified").style.display = "flex";
+  } else {
+    document.querySelector("#not-verified").style.display = "flex";
+  }
 
   if (output === "output-html") {
     const range = document.createRange();
