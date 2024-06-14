@@ -162,6 +162,7 @@ async def validate(
         return RedirectResponse(request.url_for("packages"))
 
     # Validate the parameters
+    print(parameters)
     try:
         package_parameters = json.loads(parameters)
     except ValueError as err:

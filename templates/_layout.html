@@ -33,10 +33,9 @@
                 </a>
                 {% block nav %}{% endblock %}
                 <div class="uk-position-right uk-flex uk-flex-center uk-flex-middle">
+                  <a href="https://discord.gg/m5qGTUNK"><img alt="Discord" width="30" height="30" src="/static/discord.svg"></a>
+                  <a href="https://github.com/GiadaLalli/JINet"><img alt="Source code" width="30" height="30" src="/static/Git-Icon-Black.svg"></a>
                 {% if user is defined %}                
-                  <a href="/users/{{user.name}}" class="uk-button uk-button-link">
-                    @{{user.name}}
-                  </a>
                   <div class="uk-width-auto uk-margin-left">
                     <img alt="Profile image" class="uk-border-circle" width="40" height="40" src="{{user.picture}}" referrerpolicy="no-referrer" />
                   </div>
