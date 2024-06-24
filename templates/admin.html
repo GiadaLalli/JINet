@@ -1,0 +1,28 @@
+{% extends "_layout.html" %}
+{% block title %}Contribute{% endblock %}
+{% block nav %}
+<li>
+  <a href="/">Home</a>
+</li>
+<li>
+  <a href="/packages">Applications</a>
+</li>
+<li>
+  <a href="/contribute">Contribute</a>
+</li>
+<li>
+  <a href="/data">Sample Data</a>
+</li>
+<li class="uk-active">
+  <a>Admin</a>
+</li>
+{% endblock %}
+{% block main %}
+<h1>Admin interface</h1>
+<h3>Permission Requests</h3>
+<ul>
+{% for request in requests %}
+  <li>{{ request.user.username }}</li>
+{% endfor %}
+</ul>
+{% endblock %}

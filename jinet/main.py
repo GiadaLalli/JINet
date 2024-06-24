@@ -3,7 +3,7 @@
 from typing import Optional
 
 from fastapi import FastAPI, APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from sqlmodel import select, Session, asc
@@ -13,10 +13,10 @@ from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
 from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
 from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
-from jinet import auth, data, js, packages, share
+from jinet import auth, data, js, packages, requests, share
 from jinet.config import settings
 from jinet.db import database_session
-from jinet.models import SampleData
+from jinet.models import SampleData, User, PermissionRequest
 from jinet.templates import templates
 
 app = FastAPI(title="JINet")
@@ -68,6 +68,7 @@ api_router = APIRouter()
 api_router.include_router(auth.router)
 api_router.include_router(packages.router, prefix="/packages")
 api_router.include_router(data.router, prefix="/data")
+api_router.include_router(requests.router, prefix="/requests")
 api_router.include_router(js.router)
 api_router.include_router(share.router)
 app.include_router(api_router)
@@ -124,3 +125,25 @@ async def data(
         name="data.html",
         context=auth.user_in_context(request) | {"data": data.all()},
     )
+
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin(
+    request: Request,
+    session: Session = Depends(database_session),
+):
+    userdata = auth.user(request)
+    user = (
+        await session.exec(select(User).where(User.sub == userdata.get("sub")))
+    ).first()
+
+    perm_requests = (await session.exec(select(PermissionRequest))).all()
+
+    if user.role == "admin":
+        return templates.TemplateResponse(
+            request=request,
+            name="admin.html",
+            context=auth.user_in_context(request) | {"requests": perm_requests},
+        )
+
+    return RedirectResponse(request.url_for(request.session.get("from", "index")))

@@ -23,18 +23,20 @@
 <h1>Contributing</h1>
 <div class="uk-container uk-flex uk-flex-column uk-flex-middle">
 {% if user is defined and not user.can_upload %}
-<a class="uk-button uk-button-primary uk-border-rounded jinet-background-blue">
-  Request permission to submit applications
-</a>
+<div id="upload-permission-request">
+  <a class="uk-button uk-button-primary uk-border-rounded jinet-background-blue" hx-get="/requests/upload" hx-target="#upload-permission-request">
+    Request permission to submit applications
+  </a>
+</div>
 {% endif %}
 <p>
-  You will write a script (called an "Application") that defines a single entry-point function. You can call the entry-point function any valid function name. All computation should occur within that function though you may set up the environment at the top level (such as installing dependencies). You may also define other helper functions at the top-level.
+  You will write a script (called an "Application") that defines a single entry-point function. You can call the entry-point function any valid function name. All computations should occur within that function though you may set up the environment at the top level (such as installing dependencies). You may also define other helper functions at the top-level.
 </p>
 <p>
   The entry-point function is the interface to your application. JINet will render the UI, accept parameters from the user of your application, and finally call your function with those parameters.
 </p>
 <p>
-  Your entry-point function can accept input parameters which are values provided by the user. However, there are limitations on the types of data that these parameters can be. They can only be numbers, strings, or filenames (as strings).
+  Your entry-point function can accept input parameters which are values provided by the user. However, there are limitations on the types of data that these parameters can be. They can only be numbers, strings, booleans, or filenames (as strings).
 </p>
 <p>
   When designing your entry-point function, you need to consider how to handle the input parameters effectively. If your underlying script requires complex data structures like data frames (common in languages like R or Python), you cannot directly pass these as parameters due to the limitations mentioned earlier. You may instead choose to accept filenames and read data from these files.
