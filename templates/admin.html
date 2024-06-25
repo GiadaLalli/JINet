@@ -18,29 +18,52 @@
 </li>
 {% endblock %}
 {% block main %}
-<h3>Upload permission requests</h3>
-<table class="uk-table uk-table-divider uk-table-hover uk-table-small uk-table-justify uk-table-middle uk-table-responsive">
-  <tr>
-    <th>Username</th>
-    <th>Status</th>
-    <th class="uk-table-shrink">Grant</th>
-    <th class="uk-table-shrink">Deny</th>
-  </tr>
-{% for request in requests %}
-  <tr>
-    <td>{{ request.user.username }}</td>
-    <td id="status-{{loop.index}}">{{ request.status }}</td>
-    <td class="uk-table-shrink">
-      <button class="uk-button uk-button-primary uk-button-small"
-              hx-post="/requests/grant/{{request.user_id}}"
-              hx-target="#status-{{loop.index}}">Grant</button>
-    </td>
-    <td class="uk-table-shrink">
-      <button class="uk-button uk-button-danger uk-button-small"
-              hx-post="/requests/deny/{{request.user_id}}"
-              hx-target="#status-{{loop.index}}">Deny</button>
-    </td>
-  </tr>
-{% endfor %}
-</table>
+<ul class="uk-subnav uk-subnav-pill" uk-switcher>
+  <li><a href="#">Upload permission requests</a></li>
+  <li><a href="#">Users</a></li>
+</ul>
+
+<div class="uk-switcher uk-margin">
+  <table class="uk-table uk-table-divider uk-table-hover uk-table-small uk-table-justify uk-table-middle uk-table-responsive">
+    <tr>
+      <th>Username</th>
+      <th>Status</th>
+      <th class="uk-table-shrink">Grant</th>
+      <th class="uk-table-shrink">Deny</th>
+    </tr>
+    {% for request in requests %}
+    <tr>
+      <td>{{ request.user.username }}</td>
+      <td id="status-{{loop.index}}">{{ request.status }}</td>
+      <td class="uk-table-shrink">
+        <button class="uk-button uk-button-primary uk-button-small"
+                hx-post="/requests/grant/{{request.user_id}}"
+                hx-target="#status-{{loop.index}}">Grant</button>
+      </td>
+      <td class="uk-table-shrink">
+        <button class="uk-button uk-button-danger uk-button-small"
+                hx-post="/requests/deny/{{request.user_id}}"
+                hx-target="#status-{{loop.index}}">Deny</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <table class="uk-table uk-table-divider uk-table-hover uk-table-small uk-table-justify uk-table-middle uk-table-responsive">
+    <tr>
+      <th>ID</th>
+      <th>Username</th>
+      <th>Role</th>
+      <th>Created</th>
+    </tr>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.id }}</td>
+      <td>{{ u.username }}</td>
+      <td>{{ u.role }}</td>
+      <td>{{ u.created }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
 {% endblock %}

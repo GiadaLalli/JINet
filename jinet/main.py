@@ -166,9 +166,10 @@ async def admin(
     admin: Annotated[User, Depends(auth.current_admin)],
 ):
     perm_requests = (await session.exec(select(PermissionRequest))).all()
+    users = (await session.exec(select(User))).all()
 
     return templates.TemplateResponse(
         request=request,
         name="admin.html",
-        context={"user": admin, "requests": perm_requests},
+        context={"user": admin, "requests": perm_requests, "users": users},
     )
