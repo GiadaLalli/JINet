@@ -37,6 +37,10 @@ async def grant(
     admin: Annotated[User, Depends(auth.current_admin)],
     user_id: int,
 ):
+    user = (await session.exec(select(User).where(User.id == user_id))).one_or_none()
+    if user is None:
+        return "Error: No user"
+
     # Remove the permission request
     perm_request = (
         await session.exec(
@@ -46,13 +50,9 @@ async def grant(
     if perm_request is None:
         return "ERROR: No permission request"
 
-    session.delete(perm_request)
+    await session.delete(perm_request)
 
     # Make user an uploader
-    user = (await session.exec(select(User).where(User.id == user_id))).one_or_none()
-    if user is None:
-        return "Error: No user"
-
     user.can_upload = True
     session.add(user)
 
