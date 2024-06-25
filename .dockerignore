@@ -8,3 +8,6 @@ __pycache__/
 .gitignore
 .env*
 *.sqlite
+doc/
+tests/
+benchmarking/
