@@ -1,7 +1,8 @@
 """Authorisation / login."""
 
-from typing import Any, Callable
+from typing import Annotated, Any, Callable
 import json
+import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -12,7 +13,7 @@ from sqlmodel import select, Session
 
 from jinet.config import settings
 from jinet.db import database_session
-from jinet.models import User
+from jinet.models import User, UserToken
 
 
 router = APIRouter()
@@ -28,28 +29,44 @@ oauth.register(
 )
 
 
-def unauthorized():
-    """Return unauthorized to the user."""
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
-
-
-def user_in_context(request: Request):
+async def user_in_context(request: Request, session: Session):
     """Place an authenticated user in a Jinja2 context."""
 
-    def ok(user: dict) -> dict:
+    try:
+        user = await current_user(request, session)
         return {"user": user}
+    except HTTPException:
+        return {}
 
-    return user(request, ok=ok, err=dict)
+
+async def current_user(
+    request: Request, session: Annotated[Session, Depends(database_session)]
+) -> User:
+    """Get the user based on the token. To be used with Depends()."""
+    if (token := request.session.get("token", None)) is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
+        )
+
+    user = (
+        await session.exec(select(User).join(UserToken).where(UserToken.token == token))
+    ).one_or_none()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
+        )
+
+    return user
 
 
-def user(
-    request: Request,
-    ok: Callable[[dict], dict] = lambda x: x,
-    err: Callable[[], Any] = unauthorized,
-) -> dict:
-    """Extract user session."""
-    user = request.session.get("user", None)
-    return ok(user) if user is not None else err()
+async def current_admin(
+    request: Request, user: Annotated[User, Depends(current_user)]
+) -> User:
+    """Get the admin user based on the token."""
+    if user.role == "admin":
+        return user
+
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
 
 @router.get("/login")
@@ -65,9 +82,6 @@ async def auth(request: Request, session: Session = Depends(database_session)):
     db_user = (
         await session.exec(select(User).where(User.sub == info["sub"]))
     ).one_or_none()
-    role = "user"
-    name = info.get("nickname", None)
-    can_upload = False
 
     if db_user is None:
         # Create the user in the database
@@ -79,19 +93,15 @@ async def auth(request: Request, session: Session = Depends(database_session)):
         )
         session.add(user)
         await session.commit()
-    else:
-        role = db_user.role
-        name = db_user.username
-        can_upload = db_user.can_upload
+        await session.refresh(user)
+        db_user = user
 
-    request.session["user"] = {
-        "sub": info.get("sub", None),
-        "sid": info.get("sid", None),
-        "picture": info.get("picture", None),
-        "role": role,
-        "name": name,
-        "can_upload": can_upload,
-    }
+    token = UserToken(token=secrets.token_urlsafe(32), user_id=db_user.id)
+    session.add(token)
+    await session.commit()
+    await session.refresh(token)
+
+    request.session["token"] = token.token
     return RedirectResponse(request.url_for(request.session.get("from", "index")))
 
 

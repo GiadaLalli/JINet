@@ -23,11 +23,21 @@
 <h1>Contributing</h1>
 <div class="uk-container uk-flex uk-flex-column uk-flex-middle">
 {% if user is defined and not user.can_upload %}
+  {% if user.permission_requests|length > 0 and user.permission_requests[0].status == "requested" %}
+<div class="uk-alert-success" uk-alert>
+  <p>Successfully requested upload permission.</p>
+</div>
+  {% elif user.permission_requests|length > 0 and user.permission_requests[0].status == "denied" %}
+<div class="uk-alert-warning" uk-alert>
+  <p>Upload permission request denied.</p>
+</div>
+  {% else %}
 <div id="upload-permission-request">
   <a class="uk-button uk-button-primary uk-border-rounded jinet-background-blue" hx-get="/requests/upload" hx-target="#upload-permission-request">
     Request permission to submit applications
   </a>
 </div>
+{% endif %}
 {% endif %}
 <p>
   You will write a script (called an "Application") that defines a single entry-point function. You can call the entry-point function any valid function name. All computations should occur within that function though you may set up the environment at the top level (such as installing dependencies). You may also define other helper functions at the top-level.

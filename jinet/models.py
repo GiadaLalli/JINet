@@ -36,6 +36,20 @@ class User(UserBase, table=True):
     shared: List["ShareData"] = Relationship(
         back_populates="owner", sa_relationship_kwargs={"lazy": "selectin"}
     )
+    sessions: list["UserToken"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+
+
+class UserToken(SQLModel, table=True):
+    """An opaque login token supplied to a client."""
+
+    id: int = Field(nullable=False, primary_key=True)
+    token: str = Field(nullable=False)
+    user_id: int = Field(foreign_key="user.id")
+    user: User = Relationship(
+        back_populates="sessions", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 class PackageBase(SQLModel):
@@ -109,6 +123,7 @@ class PermissionRequest(SQLModel, table=True):
 
     id: int = Field(nullable=False, primary_key=True)
     permission: str = Field(nullable=False)
+    status: str = Field(nullable=False, default="requested")
     user_id: int = Field(foreign_key="user.id")
     user: User = Relationship(
         back_populates="permission_requests",

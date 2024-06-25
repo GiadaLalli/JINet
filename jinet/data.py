@@ -11,7 +11,6 @@ from jinet import auth
 from jinet.db import database_session
 from jinet.models import SampleData, User
 from jinet.filesize import valid_content_len, read_upload_file
-from jinet.templates import templates
 
 router = APIRouter()
 
@@ -20,16 +19,12 @@ router = APIRouter()
 async def new(
     request: Request,
     filedata: Annotated[UploadFile, File(alias="file-data")],
-    content_size: int = Depends(valid_content_len),
-    session: Session = Depends(database_session),
+    content_size: Annotated[int, Depends(valid_content_len)],
+    session: Annotated[Session, Depends(database_session)],
+    owner: Annotated[User, Depends(auth.current_user)],
 ):
-    user = auth.user(request)
-    if not user.get("can_upload", False):
+    if not owner.can_upload:
         return RedirectResponse(request.url_for(request.session.get("from", "data")))
-
-    owner = (
-        await session.exec(select(User).where(User.sub == user.get("sub")))
-    ).first()
 
     sample_data = SampleData(
         name=filedata.filename,

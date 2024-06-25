@@ -127,10 +127,9 @@ async def listing(
 
 
 @router.get("/new", response_class=HTMLResponse)
-async def new(request: Request):
+async def new(request: Request, user: Annotated[User, Depends(auth.current_user)]):
     """Create a new package."""
-    user = auth.user(request)
-    if user.get("can_upload", False):
+    if user.can_upload:
         return templates.TemplateResponse(
             request=request, name="package-new.html", context={"user": user}
         )
@@ -146,6 +145,9 @@ async def validate(
     package_file: Annotated[UploadFile, File(alias="package-file")],
     parameters: Annotated[str, Form()],
     output: Annotated[str, Form()],
+    content_size: Annotated[int, Depends(valid_content_len)],
+    session: Annotated[Session, Depends(database_session)],
+    owner: Annotated[User, Depends(auth.current_user)],
     package_headline: Annotated[Optional[str], Form(alias="package-headline")] = None,
     package_description: Annotated[
         Optional[str], Form(alias="package-description")
@@ -153,28 +155,20 @@ async def validate(
     package_logo: Annotated[Optional[UploadFile], File(alias="package-logo")] = None,
     package_tags: Annotated[Optional[str], Form(alias="package-tags")] = None,
     entrypoint: Annotated[Optional[str], Form()] = None,
-    content_size: int = Depends(valid_content_len),
-    session: Session = Depends(database_session),
 ):
     """Validate a submitted package."""
-    user = auth.user(request)
-    if not user.get("can_upload", False):
+    if not owner.can_upload:
         return RedirectResponse(request.url_for("packages"))
 
     # Validate the parameters
-    print(parameters)
     try:
         package_parameters = json.loads(parameters)
     except ValueError as err:
         return templates.TemplateResponse(
             request=request,
             name="package-validate.html",
-            context={"user": user, "error": str(err)},
+            context={"user": owner, "error": str(err)},
         )
-
-    owner = (
-        await session.exec(select(User).where(User.sub == user.get("sub")))
-    ).first()
 
     # Check file size by actually reading it.
     file_buffer = read_upload_file(package_file)
@@ -227,7 +221,7 @@ async def validate(
     return templates.TemplateResponse(
         request=request,
         name="package-validate.html",
-        context={"user": user, "package": package},
+        context={"user": owner, "package": package},
     )
 
 
@@ -259,14 +253,14 @@ async def run(
             return templates.TemplateResponse(
                 request=request,
                 name="package-run-python.html",
-                context=auth.user_in_context(request)
+                context=(await auth.user_in_context(request, session))
                 | {"application": package, "package": db_package},
             )
         case "R-runtime":
             return templates.TemplateResponse(
                 request=request,
                 name="package-run-R.html",
-                context=auth.user_in_context(request)
+                context=(await auth.user_in_context(request, session))
                 | {"application": package, "package": db_package},
             )
         case _:

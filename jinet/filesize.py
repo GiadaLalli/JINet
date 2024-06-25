@@ -3,8 +3,8 @@
 from io import BytesIO
 from fastapi import Header, UploadFile, HTTPException, status
 
-# 100k
-MAX_CONTENT_LEN = 100_000
+# 2mb
+MAX_CONTENT_LEN = 2 * 1024 * 1024
 
 
 async def valid_content_len(content_length: int = Header(..., lt=MAX_CONTENT_LEN)):

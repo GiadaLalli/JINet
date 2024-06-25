@@ -22,12 +22,12 @@ async def create_share(
     output_type: Annotated[str, Form(alias="output-type")],
     data: Annotated[str, Form(alias="output-data")],
     checksum: Annotated[str, Form()],
+    session: Annotated[Session, Depends(database_session)],
+    user: Annotated[User, Depends(auth.current_user)],
     filename: Annotated[Optional[str], Form()] = None,
-    session: Session = Depends(database_session),
 ):
     """Create a share data entry in the database and generate a link in the response."""
-    user = auth.user(request)
-    if not user.get("can_upload", False):
+    if not user.can_upload:
         return RedirectResponse(request.url_for("index"))
 
     pkgdef = parse_package_name(application)

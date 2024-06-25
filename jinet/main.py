@@ -1,14 +1,17 @@
 """Main entry point."""
 
-from typing import Optional
+from typing import Annotated, Optional
 
-from fastapi import FastAPI, APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import FastAPI, APIRouter, Depends, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from sqlmodel import select, Session, asc
 
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
+
 from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
 from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
 from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
@@ -74,34 +77,63 @@ api_router.include_router(share.router)
 app.include_router(api_router)
 
 
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exception):
+    return HTMLResponse(
+        content=f"""<div class="uk-alert-danger" uk-alert>
+          <p>{exception.detail}</p>
+        </div>""",
+        status_code=status.HTTP_200_OK,
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exception):
+    return HTMLResponse(
+        content=f"""<div class="uk-alert-danger" uk-alert>
+          <p>{str(exception)}</p>
+        </div>""",
+        status_code=status.HTTP_200_OK,
+    )
+
+
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(
+    request: Request, session: Annotated[Session, Depends(database_session)]
+):
     """Home page."""
     request.session["from"] = "index"
     return templates.TemplateResponse(
-        request=request, name="index.html", context=auth.user_in_context(request)
+        request=request,
+        name="index.html",
+        context=await auth.user_in_context(request, session),
     )
 
 
 @app.get("/packages", response_class=HTMLResponse)
-async def packages(request: Request):
+async def packages(
+    request: Request, session: Annotated[Session, Depends(database_session)]
+):
     """List of packages."""
     request.session["from"] = "packages"
     return templates.TemplateResponse(
         request=request,
         name="packages.html",
-        context=auth.user_in_context(request),
+        context=await auth.user_in_context(request, session),
     )
 
 
 @app.get("/contribute", response_class=HTMLResponse)
-async def contribute(request: Request):
+async def contribute(
+    request: Request, session: Annotated[Session, Depends(database_session)]
+):
     """Documentation for createing a package."""
     request.session["from"] = "contribute"
+    select
     return templates.TemplateResponse(
         request=request,
         name="contribute.html",
-        context=auth.user_in_context(request),
+        context=await auth.user_in_context(request, session),
     )
 
 
@@ -123,27 +155,20 @@ async def data(
     return templates.TemplateResponse(
         request=request,
         name="data.html",
-        context=auth.user_in_context(request) | {"data": data.all()},
+        context=await auth.user_in_context(request, session) | {"data": data.all()},
     )
 
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin(
     request: Request,
-    session: Session = Depends(database_session),
+    session: Annotated[Session, Depends(database_session)],
+    admin: Annotated[User, Depends(auth.current_admin)],
 ):
-    userdata = auth.user(request)
-    user = (
-        await session.exec(select(User).where(User.sub == userdata.get("sub")))
-    ).first()
-
     perm_requests = (await session.exec(select(PermissionRequest))).all()
 
-    if user.role == "admin":
-        return templates.TemplateResponse(
-            request=request,
-            name="admin.html",
-            context=auth.user_in_context(request) | {"requests": perm_requests},
-        )
-
-    return RedirectResponse(request.url_for(request.session.get("from", "index")))
+    return templates.TemplateResponse(
+        request=request,
+        name="admin.html",
+        context={"user": admin, "requests": perm_requests},
+    )

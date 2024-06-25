@@ -18,11 +18,29 @@
 </li>
 {% endblock %}
 {% block main %}
-<h1>Admin interface</h1>
-<h3>Permission Requests</h3>
-<ul>
+<h3>Upload permission requests</h3>
+<table class="uk-table uk-table-divider uk-table-hover uk-table-small uk-table-justify uk-table-middle uk-table-responsive">
+  <tr>
+    <th>Username</th>
+    <th>Status</th>
+    <th class="uk-table-shrink">Grant</th>
+    <th class="uk-table-shrink">Deny</th>
+  </tr>
 {% for request in requests %}
-  <li>{{ request.user.username }}</li>
+  <tr>
+    <td>{{ request.user.username }}</td>
+    <td id="status-{{loop.index}}">{{ request.status }}</td>
+    <td class="uk-table-shrink">
+      <button class="uk-button uk-button-primary uk-button-small"
+              hx-post="/requests/grant/{{request.user_id}}"
+              hx-target="#status-{{loop.index}}">Grant</button>
+    </td>
+    <td class="uk-table-shrink">
+      <button class="uk-button uk-button-danger uk-button-small"
+              hx-post="/requests/deny/{{request.user_id}}"
+              hx-target="#status-{{loop.index}}">Deny</button>
+    </td>
+  </tr>
 {% endfor %}
-</ul>
+</table>
 {% endblock %}
