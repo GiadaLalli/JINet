@@ -120,3 +120,7 @@ def main(
         title=None,
         legend_orientation="v",
     )
+
+    return fig.to_html(
+        include_plotlyjs=False, full_html=False, default_height=f"{height}px"
+    )
