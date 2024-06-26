@@ -3,9 +3,9 @@
     {% for tag in tags %}
     <a
       {% if filtered_by_tag %}
-      hx-get="/packages/list?since=0"
+      hx-get="/packages/list"
       {% else %}
-      hx-get="/packages/list?since=0&tag={{tag}}"
+      hx-get="/packages/list?tag={{tag}}"
       {% endif %}
       hx-target="#application-list">
       <span class="uk-badge {% if filtered_by_tag %}jinet-background-red{% endif %}">{{tag}}</span>
@@ -13,6 +13,23 @@
     {% endfor %}
   </div>
   <hr class="uk-divider-icon">
+  <nav aria-label="Pagination" class="uk-flex uk-flex-center">
+    <ul class="uk-pagination">
+      {% for page in pages %}
+      {% if page.active %}
+      <li class="uk-active"><span aria-current="page">{{ page.page }}</span></li>
+      {% elif tag is defined and term is defined %}
+      <li><a hx-get="/packages/list?offset={{ page.offset }}&active={{ page.page }}&tag={{ tag }}&term={{ term }}" hx-target="#application-list">{{ page.page }}</a></li>
+      {% elif tag is defined %}
+      <li><a hx-get="/packages/list?offset={{ page.offset }}&active={{ page.page }}&tag={{ tag }}" hx-target="#application-list">{{ page.page }}</a></li>
+      {% elif term is defined %}
+      <li><a hx-get="/packages/list?offset={{ page.offset }}&active={{ page.page }}&term={{ term }}" hx-target="#application-list">{{ page.page }}</a></li>
+      {% else %}
+      <li><a hx-get="/packages/list?offset={{ page.offset }}&active={{ page.page }}" hx-target="#application-list">{{ page.page }}</a></li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+  </nav>
   <div class="uk-text-center uk-child-width-1-1@s uk-child-width-1-3@m" uk-grid>
 {% for package in packages %}
     <div>

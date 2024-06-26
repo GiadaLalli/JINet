@@ -3,6 +3,7 @@
 from typing import Annotated, Optional
 from dataclasses import dataclass
 import json
+import math
 
 from fastapi import (
     APIRouter,
@@ -17,7 +18,7 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from sqlmodel import select, Session, desc
+from sqlmodel import func, select, Session, desc, asc
 
 from jinet import auth
 from jinet.templates import templates
@@ -26,6 +27,8 @@ from jinet.models import Package, Tag, User
 from jinet.filesize import valid_content_len, read_upload_file
 
 router = APIRouter()
+
+PAGINATION_LIMIT = 12
 
 
 @dataclass
@@ -54,10 +57,20 @@ def parse_package_name(name: str) -> Optional[PackageName]:
         return None
 
 
+@dataclass(frozen=True)
+class Page:
+    """Describes a page of applications that is paginated."""
+
+    page: int
+    active: bool
+    offset: int
+
+
 @router.get("/list", response_class=HTMLResponse)
 async def listing(
     request: Request,
-    since: int = 0,
+    offset: int = 0,
+    active: int = 1,
     tag: Optional[str] = None,
     term: Optional[str] = None,
     session: Session = Depends(database_session),
@@ -65,26 +78,31 @@ async def listing(
     """Retrieve a paginated listing of all packages."""
     if term == "":
         term = None
+
     match (tag, term):
         case (None, None):
-            sql_qry = (
+            pkg_qry = (
                 select(Package)
                 .distinct(Package.name, Package.owner_id)
-                .order_by(Package.name, Package.owner_id, desc(Package.version))
-                .where(Package.id >= since)
-                .limit(10)
+                .order_by(
+                    Package.name,
+                    Package.owner_id,
+                    desc(Package.version),
+                )
+                .subquery()
             )
+
         case (tg, None):
-            sql_qry = (
+            pkg_qry = (
                 select(Package)
                 .distinct(Package.name, Package.owner_id)
                 .order_by(Package.name, Package.owner_id, desc(Package.version))
                 .where(Package.tags.any(Tag.name == tg))
-                .where(Package.id >= since)
-                .limit(10)
+                .subquery()
             )
+
         case (None, query):
-            sql_qry = (
+            pkg_qry = (
                 select(Package)
                 .distinct(Package.name, Package.owner_id)
                 .order_by(Package.name, Package.owner_id, desc(Package.version))
@@ -93,20 +111,29 @@ async def listing(
                     | Package.short_description.icontains(query)
                     | Package.description.icontains(query)
                 )
-                .where(Package.id >= since)
-                .limit(10)
+                .subquery()
             )
+
         case (tg, query):
-            sql_qry = (
+            pkg_qry = (
                 select(Package)
                 .distinct(Package.name, Package.owner_id)
                 .filter(Package.tags.any(Tag.name == tg))
                 .filter(Package.name.op("%")(query))
                 .order_by(Package.name, Package.owner_id, desc(Package.version))
-                .where(Package.id >= since)
-                .limit(10)
+                .subquery()
             )
-    packages = (await session.exec(sql_qry)).all()
+    total = (await session.exec(select(func.count()).select_from(pkg_qry))).one()
+
+    packages = (
+        await session.exec(
+            select(Package)
+            .join(pkg_qry, Package.id == pkg_qry.c.id)
+            .order_by(asc(pkg_qry.c.id))
+            .offset(offset)
+            .limit(PAGINATION_LIMIT)
+        )
+    ).all()
 
     if tag is None:
         tags = (await session.exec(select(Tag.name).distinct())).all()
@@ -115,6 +142,13 @@ async def listing(
         tags = [tag]
         filtered_by_tag = True
 
+    pages = [
+        Page(page=p + 1, active=(p + 1) == active, offset=p * PAGINATION_LIMIT)
+        for p in range(math.ceil(total / PAGINATION_LIMIT))
+    ]
+
+    term_options = {} if term is None else {"term": term}
+    tag_options = {} if tag is None else {"tag": tag}
     return templates.TemplateResponse(
         request=request,
         name="package-list.html",
@@ -122,7 +156,10 @@ async def listing(
             "packages": packages,
             "tags": tags,
             "filtered_by_tag": filtered_by_tag,
-        },
+            "pages": pages,
+        }
+        | term_options
+        | tag_options,
     )
 
 
