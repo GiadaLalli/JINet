@@ -2,9 +2,10 @@
 
 {% block extra_head %}
 {% if package.interface.output == "output-html" %}
-<script src="https://cdn.plot.ly/plotly-strict-2.30.0.min.js" charset="utf-8"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-strict-dist-min@2.33.0/plotly-strict.min.js"
+        integrity="sha256-LuSlhEU9K6buBey3pLcBXkyYwjRhrePtGW/aYwO5uu0="
+        crossorigin="anonymous"></script>
 {% endif %}
-<script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
 {% endblock %}
 
 {% block scripts %}

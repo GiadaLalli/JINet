@@ -1,6 +1,6 @@
 // This is a worker script
 
-importScripts("https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js");
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js");
 
 async function initRuntime() {
   self.pyodide = await loadPyodide();
@@ -108,6 +108,15 @@ self.onmessage = async (event) => {
           filename: value,
           data: self.pyodide.FS.readFile(value),
         },
+      });
+      break;
+    }
+    case "write": {
+      const { filename, data } = value;
+      self.pyodide.FS.writeFile(filename, data);
+      self.postMessage({
+        msg: "write",
+        value: filename,
       });
       break;
     }

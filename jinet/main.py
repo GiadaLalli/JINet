@@ -14,6 +14,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
 from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
+from Secweb.CrossOriginResourcePolicy import CrossOriginResourcePolicy
 from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
 from jinet import auth, data, js, packages, requests, share
@@ -31,15 +32,14 @@ app.add_middleware(
         "script-src": [
             "'self'",
             "'unsafe-eval'",  # For Webassembly on Chromium
-            "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
+            # "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
             "https://cdn.jsdelivr.net",
             "https://unpkg.com",
             "https://webr.r-wasm.org",
-            "https://cdn.plot.ly",
         ],
         "style-src": [
             "'self'",
-            "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
+            # "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
             "https://cdn.jsdelivr.net",
         ],
         "img-src": [
@@ -60,10 +60,13 @@ app.add_middleware(
     },
 )
 app.add_middleware(
-    CrossOriginEmbedderPolicy, Option={"Cross-Origin-Embedder-Policy": "credentialless"}
+    CrossOriginEmbedderPolicy, Option={"Cross-Origin-Embedder-Policy": "require-corp"}
 )
 app.add_middleware(
     CrossOriginOpenerPolicy, Option={"Cross-Origin-Opener-Policy": "same-origin"}
+)
+app.add_middleware(
+    CrossOriginResourcePolicy, Option={"Cross-Origin-Resource-Policy": "same-origin"}
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
 

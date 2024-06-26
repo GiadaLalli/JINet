@@ -29,6 +29,10 @@ function addFileSelectors(files) {
   );
 }
 
+function isFileSystemAvailable() {
+  return !!window.showDirectoryPicker;
+}
+
 let interruptBuffer = new Uint8Array(new SharedArrayBuffer(1));
 const worker = new Worker("/static/python-runtime.js");
 worker.onmessage = (evt) => {
@@ -41,6 +45,10 @@ worker.onmessage = (evt) => {
     case "source": {
       loaderdiv.style.display = "none";
       parametersdiv.style.display = "flex";
+      if (!isFileSystemAvailable()) {
+        fieldsparent.style.display = "flex";
+        runbutton.style.display = "block";
+      }
       break;
     }
     case "datadir": {
@@ -51,7 +59,6 @@ worker.onmessage = (evt) => {
       pathPrefix = value.prefix;
       break;
     }
-
     case "run": {
       loaderdiv.style.display = "none";
 
@@ -77,6 +84,9 @@ worker.onmessage = (evt) => {
       resultContentsDiv.appendChild(download);
       break;
     }
+    case "write": {
+      break;
+    }
   }
 };
 worker.postMessage({ msg: "interrupt_buffer", value: interruptBuffer });
@@ -85,15 +95,40 @@ worker.postMessage({
   value: "/packages/file?package={{application}}",
 });
 
-datafolderbutton.addEventListener("click", async () => {
-  const dirHandle = await showDirectoryPicker();
-  if ((await dirHandle.queryPermission({ mode: "read" })) !== "granted") {
-    if ((await dirHandle.requestPermission({ mode: "read" })) !== "granted") {
-      throw Error("Unable to access your data directory");
+if (!isFileSystemAvailable()) {
+  datafolderbutton.style.display = "none";
+  Array.from(document.querySelectorAll("div[data-parameter=path]")).map(
+    (pathinput) => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.name = pathinput.dataset.parameterName;
+      input.setAttribute("id", pathinput.dataset.parameterName);
+      input.addEventListener("change", (chng) => {
+        const reader = new FileReader();
+        const filename = chng.target.files[0].name;
+        reader.onload = async (evt) => {
+          let bytes = new Uint8Array(evt.target.result);
+          worker.postMessage({
+            msg: "write",
+            value: { filename, data: bytes },
+          });
+        };
+        reader.readAsArrayBuffer(input.files[0]);
+      });
+      pathinput.appendChild(input);
+    },
+  );
+} else {
+  datafolderbutton.addEventListener("click", async () => {
+    const dirHandle = await showDirectoryPicker();
+    if ((await dirHandle.queryPermission({ mode: "read" })) !== "granted") {
+      if ((await dirHandle.requestPermission({ mode: "read" })) !== "granted") {
+        throw Error("Unable to access your data directory");
+      }
     }
-  }
-  worker.postMessage({ msg: "datadir", value: dirHandle });
-});
+    worker.postMessage({ msg: "datadir", value: dirHandle });
+  });
+}
 
 runbutton.addEventListener("click", async () => {
   parametersdiv.style.display = "none";
@@ -117,7 +152,11 @@ runbutton.addEventListener("click", async () => {
         // {% elif parameter.type == "bool" %}
         document.querySelector("#parameter-{{parameter.name}}").checked,
         // {% elif parameter.type == "path" %}
-        `${pathPrefix}/${document.querySelector("input[type='radio'][name='parameter-{{parameter.name}}']:checked").value}`,
+        isFileSystemAvailable()
+          ? `${pathPrefix}/${document.querySelector("input[type='radio'][name='parameter-{{parameter.name}}']:checked").value}`
+          : document
+              .querySelector("#parameter-{{parameter.name}}")
+              .value.substring(12),
         // {% endif %}
         // {% endfor %}
       ],
