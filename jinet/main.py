@@ -32,14 +32,14 @@ app.add_middleware(
         "script-src": [
             "'self'",
             "'unsafe-eval'",  # For Webassembly on Chromium
-            # "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
+            "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
             "https://cdn.jsdelivr.net",
             "https://unpkg.com",
             "https://webr.r-wasm.org",
         ],
         "style-src": [
             "'self'",
-            # "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
+            "'unsafe-inline'",  # For Plotly.js (even the strict bundle)
             "https://cdn.jsdelivr.net",
         ],
         "img-src": [
