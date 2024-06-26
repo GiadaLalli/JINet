@@ -76,18 +76,26 @@ def main(
     width: int,
     title: str,
     legend_orientation: str,
+    marginal_y="violin",
+    marginal_x="box",
+    trendline="ols",
+    template="simple_white",
 ):
     df = read_csv(data)
     fig = scatter_marginals_px(
-        df,
-        x,
-        y,
-        target,
+        df=df,
+        x=x,
+        y=y,
+        target=target,
         dpi=dpi,
         height=height,
         width=width,
         title=title,
         legend_orientation=legend_orientation,
+        marginal_y=marginal_y,
+        marginal_x=marginal_x,
+        trendline=trendline,
+        template=template,
     )
     return fig.to_html(
         include_plotlyjs=False, full_html=False, default_height=f"{height}px"
