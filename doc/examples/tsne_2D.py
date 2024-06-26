@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas as pd
 from pandas import read_csv
 import plotly.express as px
 from sklearn.manifold import TSNE
@@ -44,6 +45,7 @@ def tsne_2d_px(
         labels={"color": "Class"},  # Legend label
     )
 
+
     # Customizing the layout
     fig.update_layout(
         title={
@@ -83,16 +85,16 @@ def tsne_2d_px(
 # url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
 # df = pd.read_csv(url, names=['sepal length','sepal width','petal length','petal width','target'])
 
-tsne_2d_px(
-    df,
-    "target",
-    dpi=350,
-    width=1100,
-    height=800,
-    alpha=0.5,
-    title="2D t-SNE plot on Iris Data",
-    legend_orientation="h",
-)
+#tsne_2d_px(
+#    df,
+#    "target",
+#    dpi=350,
+#    width=1100,
+#    height=800,
+#    alpha=0.5,
+#    title="2D t-SNE plot on Iris Data",
+#    legend_orientation="h",
+#)
 
 
 def main(
@@ -103,7 +105,7 @@ def main(
     height: int,
     alpha: float,
     title: str,
-    legend_oriantation: str,
+    legend_orientation: str,
 ):
     df = read_csv(data)
     fig = tsne_2d_px(
@@ -114,7 +116,7 @@ def main(
         height=height,
         alpha=alpha,
         title=title,
-        legend_orientation=legend_oriantation,
+        legend_orientation=legend_orientation,
     )
     return fig.to_html(
         include_plotlyjs=False, full_html=False, default_height=f"{height}px"
