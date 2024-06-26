@@ -80,6 +80,7 @@ def UMAP_2d_px(
 
 def main(
     data: Path,
+    target: str, 
     n_components: int,
     dpi: int,
     width: int,
@@ -91,6 +92,7 @@ def main(
     df = read_csv(data)
     fig = UMAP_2d_px(
         df=df,
+        target=target,
         n_components=n_components,
         dpi=dpi,
         width=width,
