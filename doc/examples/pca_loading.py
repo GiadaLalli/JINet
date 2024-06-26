@@ -94,7 +94,9 @@ def pca_with_loadings_px(
     # Update trace opacity
     fig.update_traces(marker=dict(opacity=alpha))
 
-    fig.to_html(include_plotlyjs=False, full_html=False, default_height=f"{height}px")
+    return fig.to_html(
+        include_plotlyjs=False, full_html=False, default_height=f"{height}px"
+    )
 
 
 def main(
@@ -119,8 +121,4 @@ def main(
         alpha=1,
         title=None,
         legend_orientation="v",
-    )
-
-    return fig.to_html(
-        include_plotlyjs=False, full_html=False, default_height=f"{height}px"
     )
