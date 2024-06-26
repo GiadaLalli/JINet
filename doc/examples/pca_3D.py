@@ -88,10 +88,9 @@ def main(
     alpha: int,
     title: str,
     legend_orientation: str,
-    diagonal_visible: bool,
 ):
     df = read_csv(data)
-    fig = pca_3d_px(
+    return pca_3d_px(
         df=df,
         target=target,
         n_components=n_components,
@@ -101,8 +100,4 @@ def main(
         alpha=alpha,
         title=title,
         legend_orientation=legend_orientation,
-        diagonal_visible=diagonal_visible,
-    )
-    return fig.to_html(
-        include_plotlyjs=False, full_html=False, default_height=f"{height}px"
     )
