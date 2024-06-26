@@ -2,6 +2,7 @@
   <div class="uk-margin-top">
     {% for tag in tags %}
     <a
+      class="uk-link-toggle"
       {% if filtered_by_tag %}
       hx-get="/packages/list"
       {% else %}
