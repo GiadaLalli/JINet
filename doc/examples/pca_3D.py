@@ -80,10 +80,12 @@ def pca_3d_px(
 
 def main(
     data: Path,
+    target: str,
     n_components: int,
     dpi: int,
     width: int,
     height: int,
+    alpha: int
     title: str,
     legend_orientation: str,
     diagonal_visible: bool,
@@ -91,10 +93,12 @@ def main(
     df = read_csv(data)
     fig = pca_3d_px(
         df=df,
+        target=target
         n_components=n_components,
         dpi=dpi,
         width=width,
         height=height,
+        alpha=alpha
         title=title,
         legend_orientation=legend_orientation,
         diagonal_visible=diagonal_visible,
