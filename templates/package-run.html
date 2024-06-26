@@ -100,5 +100,7 @@
     </div>
   </section>
 </div>
+{% if user is defined %}
 <script type="module" src="/js/share.js?application={{ application }}"></script>
+{% endif %}
 {% endblock %}
