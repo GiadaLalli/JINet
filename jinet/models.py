@@ -80,13 +80,22 @@ class Package(PackageBase, table=True):
         back_populates="packages", sa_relationship_kwargs={"lazy": "selectin"}
     )
     tags: List["Tag"] = Relationship(
-        back_populates="package", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="package",
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+        },
     )
     ratings: List["Rating"] = Relationship(
-        back_populates="package", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="package",
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+        },
     )
     shares: List["ShareData"] = Relationship(
-        back_populates="package", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="package",
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+        },
     )
 
 
@@ -94,7 +103,10 @@ class Tag(SQLModel, table=True):
     name: str = Field(nullable=False, primary_key=True)
     package_id: int = Field(foreign_key="package.id", primary_key=True)
     package: Package = Relationship(
-        back_populates="tags", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="tags",
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+        },
     )
 
 
@@ -102,7 +114,10 @@ class Rating(SQLModel, table=True):
     id: int = Field(nullable=False, primary_key=True)
     package_id: int = Field(foreign_key="package.id")
     package: Package = Relationship(
-        back_populates="ratings", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="ratings",
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+        },
     )
     rating: int = Field(nullable=False)
 
@@ -114,7 +129,10 @@ class SampleData(SQLModel, table=True):
     mime: str = Field(nullable=False)
     owner_id: int = Field(foreign_key="user.id")
     owner: User = Relationship(
-        back_populates="sample_data", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="sample_data",
+        sa_relationship_kwargs={
+            "lazy": "selectin",
+        },
     )
 
 

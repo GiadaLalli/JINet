@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from sqlmodel import select, Session, asc
+from sqlmodel import select, Session, asc, desc
 
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
@@ -20,7 +20,7 @@ from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 from jinet import auth, data, js, packages, requests, share
 from jinet.config import settings
 from jinet.db import database_session
-from jinet.models import SampleData, User, PermissionRequest
+from jinet.models import SampleData, User, PermissionRequest, Package
 from jinet.templates import templates
 
 app = FastAPI(title="JINet")
@@ -170,9 +170,25 @@ async def admin(
 ):
     perm_requests = (await session.exec(select(PermissionRequest))).all()
     users = (await session.exec(select(User))).all()
+    apps = (
+        await session.exec(
+            select(Package)
+            .distinct(Package.name, Package.owner_id)
+            .order_by(
+                Package.name,
+                Package.owner_id,
+                desc(Package.version),
+            )
+        )
+    ).all()
 
     return templates.TemplateResponse(
         request=request,
         name="admin.html",
-        context={"user": admin, "requests": perm_requests, "users": users},
+        context={
+            "user": admin,
+            "requests": perm_requests,
+            "users": users,
+            "apps": apps,
+        },
     )

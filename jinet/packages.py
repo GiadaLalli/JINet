@@ -18,7 +18,7 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from sqlmodel import func, select, Session, desc, asc
+from sqlmodel import func, select, Session, desc, asc, delete
 
 from jinet import auth
 from jinet.templates import templates
@@ -266,7 +266,7 @@ async def validate(
 async def run(
     request: Request,
     package: str,
-    session: Session = Depends(database_session),
+    session: Annotated[Session, Depends(database_session)],
 ):
     """Run a package in the users browser."""
     pkgdef = parse_package_name(package)
@@ -306,7 +306,9 @@ async def run(
 
 @router.get("/file")
 async def file(
-    request: Request, package: str, session: Session = Depends(database_session)
+    request: Request,
+    package: str,
+    session: Annotated[Session, Depends(database_session)],
 ):
     """Get the package data file from the database."""
     pkgdef = parse_package_name(package)
@@ -333,7 +335,11 @@ async def file(
 
 
 @router.get("/logo")
-async def logo(request: Request, package: str, session=Depends(database_session)):
+async def logo(
+    request: Request,
+    package: str,
+    session: Annotated[Session, Depends(database_session)],
+):
     """Get a package logo if one exists."""
     pkgdef = parse_package_name(package)
     if (
@@ -361,3 +367,68 @@ async def logo(request: Request, package: str, session=Depends(database_session)
         )
 
     return Response(content=db_package.logo, media_type=db_package.logo_mime)
+
+
+@router.delete("/delete", response_class=HTMLResponse)
+async def delete_package(
+    request: Request,
+    package: str,
+    session: Annotated[Session, Depends(database_session)],
+    admin: Annotated[User, Depends(auth.current_admin)],
+):
+    """Delete a package from the database."""
+    pkgdef = parse_package_name(package)
+    if (
+        owner := (
+            await session.exec(select(User).where(User.username == pkgdef.user))
+        ).first()
+    ) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not a user")
+
+    # Get all the package IDs to delete
+    the_package = (
+        await session.exec(
+            select(Package)
+            .where(Package.name == pkgdef.package)
+            .where(Package.owner_id == owner.id)
+            .where(Package.version == pkgdef.version)
+        )
+    ).one_or_none()
+    # Delete the tags
+    await session.exec(delete(Tag).where(Tag.package_id == the_package.id))
+    # Delete the app
+    await session.exec(
+        delete(Package)
+        .where(Package.name == pkgdef.package)
+        .where(Package.owner_id == owner.id)
+        .where(Package.version == pkgdef.version)
+    )
+    await session.commit()
+
+    app = (
+        await session.exec(
+            select(Package)
+            .distinct(Package.name, Package.owner_id)
+            .where(Package.name == pkgdef.package)
+            .where(Package.owner_id == owner.id)
+            .order_by(
+                Package.name,
+                Package.owner_id,
+                desc(Package.version),
+            )
+        )
+    ).one_or_none()
+
+    if app is not None:
+        return f"""<tr id="app-{app.id}">
+        <td>{pkgdef.user}</td>
+        <td>{pkgdef.package}</td>
+        <td>{app.runtime}</td>
+        <td>{app.version}</td>
+        <td><button class="uk-button uk-button-danger uk-button-small"
+                    hx-delete="/packages/delete?package={pkgdef.user}/{pkgdef.package}@{app.version}"
+                    hx-target="#app-{app.id}"
+                    hx-swap="outerHTML">Delete</button>
+        </tr>"""
+
+    return "<tr><td>Deleted</td><td>Deleted</td><td>Deleted</td><td>Deleted</td><td>Deleted</td></tr>"

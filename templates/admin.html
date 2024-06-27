@@ -21,6 +21,7 @@
 <ul class="uk-subnav uk-subnav-pill" uk-switcher>
   <li><a href="#">Upload permission requests</a></li>
   <li><a href="#">Users</a></li>
+  <li><a href="#">Applications</a></li>
 </ul>
 
 <div class="uk-switcher uk-margin">
@@ -55,6 +56,7 @@
       <th>Username</th>
       <th>Role</th>
       <th>Created</th>
+      <th>Upload Permission</th>
     </tr>
     {% for u in users %}
     <tr>
@@ -62,6 +64,33 @@
       <td>{{ u.username }}</td>
       <td>{{ u.role }}</td>
       <td>{{ u.created }}</td>
+      <td>{% if u.can_upload %}Yes{% else %}No{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <table class="uk-table uk-table-divider uk-table-hover uk-table-small uk-table-justify uk-table-middle uk-table-responsive">
+    <tr>
+      <th>Owner</th>
+      <th>Name</th>
+      <th>Runtime</th>
+      <th>Version</th>
+      <th>Delete</th>
+    </tr>
+    {% for app in apps %}
+    <tr id="app-{{ app.id }}">
+      <td>{{ app.owner.username | escape }}</td>
+      <td>{{ app.name | escape }}</td>
+      <td>{{ app.runtime }}</td>
+      <td>{{ app.version }}</td>
+      <td class="uk-table-shrink">
+        <button class="uk-button uk-button-danger uk-button-small"
+                hx-delete="/packages/delete?package={{ app.owner.username|escape }}/{{ app.name|escape }}@{{ app.version }}"
+                hx-target="#app-{{ app.id }}"
+                hx-swap="outerHTML">
+          Delete
+        </button>
+      </td>
     </tr>
     {% endfor %}
   </table>
