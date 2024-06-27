@@ -22,6 +22,7 @@
   <li><a href="#">Upload permission requests</a></li>
   <li><a href="#">Users</a></li>
   <li><a href="#">Applications</a></li>
+  <li><a href="#">Sample Data</a></li>
 </ul>
 
 <div class="uk-switcher uk-margin">
@@ -88,6 +89,29 @@
                 hx-delete="/packages/delete?package={{ app.owner.username|escape }}/{{ app.name|escape }}@{{ app.version }}"
                 hx-target="#app-{{ app.id }}"
                 hx-swap="outerHTML">
+          Delete
+        </button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <table class="uk-table uk-table-divider uk-table-hover uk-table-small uk-table-justify uk-table-middle uk-table-responsive">
+    <tr>
+      <th>Filename</th>
+      <th>MIME</th>
+      <th>Owner</th>
+      <th>Delete</th>
+    </tr>
+    {% for data in sampledata %}
+    <tr>
+      <td>{{ data.name | escape }}</td>
+      <td>{{ data.mime | escape }}</td>
+      <td>{{ data.owner.username }}</td>
+      <td class="uk-table-shrink">
+        <button class="uk-button uk-button-danger uk-button-small"
+                hx-delete="/data/delete/{{ data.id }}"
+                >
           Delete
         </button>
       </td>

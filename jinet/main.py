@@ -181,6 +181,7 @@ async def admin(
             )
         )
     ).all()
+    sampledata = (await session.exec(select(SampleData))).all()
 
     return templates.TemplateResponse(
         request=request,
@@ -190,5 +191,6 @@ async def admin(
             "requests": perm_requests,
             "users": users,
             "apps": apps,
+            "sampledata": sampledata,
         },
     )

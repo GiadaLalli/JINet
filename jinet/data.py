@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from sqlmodel import select, Session
+from sqlmodel import select, Session, delete
 
 from jinet import auth
 from jinet.db import database_session
@@ -49,3 +49,15 @@ async def datafile(
         return RedirectResponse(request.url_for(request.session.get("from", "data")))
 
     return Response(content=result.data, media_type=result.mime)
+
+
+@router.delete("/delete/{identifier}", response_class=HTMLResponse)
+async def delete_data(
+    request: Request,
+    identifier: int,
+    session: Annotated[Session, Depends(database_session)],
+    admin: Annotated[User, Depends(auth.current_admin)],
+):
+    await session.exec(delete(SampleData).where(SampleData.id == identifier))
+    await session.commit()
+    return "<p>Deleted</p>"
