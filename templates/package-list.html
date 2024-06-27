@@ -58,8 +58,8 @@
         <div class="uk-card-body">
           <p>{{package.short_description | escape}}</p>
           <p class="uk-text-meta">
-            {% if package.rating is not none %}
-            Rating: {{package.rating}}
+            {% if package.ratings|length > 0 %}
+            Rating: {{package.ratings}}
             {% else %}
             No rating yet
             {% endif %}
