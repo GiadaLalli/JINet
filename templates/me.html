@@ -1,0 +1,23 @@
+{% extends "_layout.html" %}
+{% block title %}{{ user.username }}{% endblock %}
+{% block nav %}
+<li>
+  <a href="/">Home</a>
+</li>
+<li>
+  <a href="/packages">Applications</a>
+</li>
+<li>
+  <a href="/contribute">Contribute</a>
+</li>
+<li>
+  <a href="/data">Sample Data</a>
+</li>
+<li>
+  <a>Admin</a>
+</li>
+{% endblock %}
+{% block main %}
+<h1>Hello {{ user.username }}!</h1>
+<button >Logout</button>
+{% endblock %}

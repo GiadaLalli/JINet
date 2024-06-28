@@ -16,6 +16,12 @@ from jinet.db import database_session
 from jinet.models import User, UserToken
 
 
+class RequiresLoginException(Exception):
+    """Thrown when an endpoint requires login but the user is not authenticated."""
+
+    pass
+
+
 router = APIRouter()
 oauth = OAuth()
 oauth.register(
@@ -31,11 +37,10 @@ oauth.register(
 
 async def user_in_context(request: Request, session: Session):
     """Place an authenticated user in a Jinja2 context."""
-
     try:
         user = await current_user(request, session)
         return {"user": user}
-    except HTTPException:
+    except RequiresLoginException:
         return {}
 
 
@@ -43,18 +48,16 @@ async def current_user(
     request: Request, session: Annotated[Session, Depends(database_session)]
 ) -> User:
     """Get the user based on the token. To be used with Depends()."""
+    request.session["from"] = request.url.path
+
     if (token := request.session.get("token", None)) is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
-        )
+        raise RequiresLoginException()
 
     user = (
         await session.exec(select(User).join(UserToken).where(UserToken.token == token))
     ).one_or_none()
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
-        )
+        raise RequiresLoginException()
 
     return user
 
@@ -71,12 +74,14 @@ async def current_admin(
 
 @router.get("/login")
 async def login(request: Request) -> RedirectResponse:
+    """Endpoint to begin user login."""
     redirect_uri = request.url_for("auth")
     return await oauth.auth0.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/callback")
 async def auth(request: Request, session: Session = Depends(database_session)):
+    """Authenticate a user."""
     token = await oauth.auth0.authorize_access_token(request)
     info = token["userinfo"]
     db_user = (
@@ -102,13 +107,4 @@ async def auth(request: Request, session: Session = Depends(database_session)):
     await session.refresh(token)
 
     request.session["token"] = token.token
-    return RedirectResponse(request.url_for(request.session.get("from", "index")))
-
-
-@router.get("/me")
-async def me(request: Request):
-    user = request.session.get("user", None)
-    request.session["from"] = "/me"
-    if user:
-        return HTMLResponse(f"<pre>{json.dumps(user)}</pre>")
-    return RedirectResponse(request.url_for("login"))
+    return RedirectResponse(request.session.get("from", "/"))

@@ -4,7 +4,7 @@ from typing import Annotated, Optional
 
 from fastapi import FastAPI, APIRouter, Depends, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from sqlmodel import select, Session, asc, desc
@@ -17,7 +17,7 @@ from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
 from Secweb.CrossOriginResourcePolicy import CrossOriginResourcePolicy
 from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
-from jinet import auth, data, js, packages, requests, share
+from jinet import auth, data, js, packages, requests, share, users
 from jinet.config import settings
 from jinet.db import database_session
 from jinet.models import SampleData, User, PermissionRequest, Package
@@ -77,7 +77,14 @@ api_router.include_router(data.router, prefix="/data")
 api_router.include_router(requests.router, prefix="/requests")
 api_router.include_router(js.router)
 api_router.include_router(share.router)
+api_router.include_router(users.router, prefix="/users")
 app.include_router(api_router)
+
+
+@app.exception_handler(auth.RequiresLoginException)
+async def requires_login_exception_handler(request, exception):
+    """Redirect unauthenticated users to login automatically."""
+    return RedirectResponse(request.url_for("login"))
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -105,7 +112,7 @@ async def index(
     request: Request, session: Annotated[Session, Depends(database_session)]
 ):
     """Home page."""
-    request.session["from"] = "index"
+    request.session["from"] = "/"
     return templates.TemplateResponse(
         request=request,
         name="index.html",
@@ -118,7 +125,7 @@ async def packages(
     request: Request, session: Annotated[Session, Depends(database_session)]
 ):
     """List of packages."""
-    request.session["from"] = "packages"
+    request.session["from"] = "/packages"
     return templates.TemplateResponse(
         request=request,
         name="packages.html",
@@ -131,7 +138,7 @@ async def contribute(
     request: Request, session: Annotated[Session, Depends(database_session)]
 ):
     """Documentation for createing a package."""
-    request.session["from"] = "contribute"
+    request.session["from"] = "/contribute"
     select
     return templates.TemplateResponse(
         request=request,
@@ -147,7 +154,7 @@ async def data(
     session: Session = Depends(database_session),
 ):
     """Upload example data formats."""
-    request.session["from"] = "data"
+    request.session["from"] = "/data"
     query = (
         select(SampleData)
         .order_by(asc(SampleData.id))

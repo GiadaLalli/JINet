@@ -24,7 +24,7 @@ async def new(
     owner: Annotated[User, Depends(auth.current_user)],
 ):
     if not owner.can_upload:
-        return RedirectResponse(request.url_for(request.session.get("from", "data")))
+        return RedirectResponse(request.session.get("from", "/data"))
 
     sample_data = SampleData(
         name=filedata.filename,
@@ -46,7 +46,7 @@ async def datafile(
     query = select(SampleData).where(SampleData.name == name)
     result = (await session.exec(query)).first()
     if result is None:
-        return RedirectResponse(request.url_for(request.session.get("from", "data")))
+        return RedirectResponse(request.session.get("from", "/data"))
 
     return Response(content=result.data, media_type=result.mime)
 
