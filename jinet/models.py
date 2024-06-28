@@ -46,6 +46,10 @@ class UserToken(SQLModel, table=True):
 
     id: int = Field(nullable=False, primary_key=True)
     token: str = Field(nullable=False)
+    created: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column("created", type_=TIMESTAMP(timezone=True), nullable=False),
+    )
     user_id: int = Field(foreign_key="user.id")
     user: User = Relationship(
         back_populates="sessions", sa_relationship_kwargs={"lazy": "selectin"}

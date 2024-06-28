@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 
 from authlib.integrations.starlette_client import OAuth
 
-from sqlmodel import select, Session
+from sqlmodel import delete, select, Session
 
 from jinet.config import settings
 from jinet.db import database_session
@@ -79,8 +79,23 @@ async def login(request: Request) -> RedirectResponse:
     return await oauth.auth0.authorize_redirect(request, redirect_uri)
 
 
+@router.get("/logout")
+async def logout(
+    request: Request,
+    session: Annotated[Session, Depends(database_session)],
+    user: Annotated[User, Depends(current_user)],
+):
+    """Logout the current user."""
+    token = request.session.pop("token")
+    await session.exec(delete(UserToken).where(UserToken.token == token))
+    await session.commit()
+    return RedirectResponse(request.url_for("index"))
+
+
 @router.get("/callback")
-async def auth(request: Request, session: Session = Depends(database_session)):
+async def auth(
+    request: Request, session: Annotated[Session, Depends(database_session)]
+):
     """Authenticate a user."""
     token = await oauth.auth0.authorize_access_token(request)
     info = token["userinfo"]
