@@ -369,48 +369,41 @@ async def logo(
     return Response(content=db_package.logo, media_type=db_package.logo_mime)
 
 
-@router.delete("/delete", response_class=HTMLResponse)
+@router.delete("/delete/{package_id}", response_class=HTMLResponse)
 async def delete_package(
     request: Request,
-    package: str,
+    package_id: int,
     session: Annotated[Session, Depends(database_session)],
-    admin: Annotated[User, Depends(auth.current_admin)],
+    user: Annotated[User, Depends(auth.current_user)],
 ):
     """Delete a package from the database."""
-    pkgdef = parse_package_name(package)
     if (
-        owner := (
-            await session.exec(select(User).where(User.username == pkgdef.user))
-        ).first()
+        package := (
+            await session.exec(select(Package).where(Package.id == package_id))
+        ).one_or_none()
     ) is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not a user")
-
-    # Get all the package IDs to delete
-    the_package = (
-        await session.exec(
-            select(Package)
-            .where(Package.name == pkgdef.package)
-            .where(Package.owner_id == owner.id)
-            .where(Package.version == pkgdef.version)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Not a package"
         )
-    ).one_or_none()
+
+    # Only Admins or the owner of the package can delete the package
+    if user.id != package.owner_id and user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_400_UNAUTHORIZED, detail="Unauthorized"
+        )
+
     # Delete the tags
-    await session.exec(delete(Tag).where(Tag.package_id == the_package.id))
+    await session.exec(delete(Tag).where(Tag.package_id == package_id))
     # Delete the app
-    await session.exec(
-        delete(Package)
-        .where(Package.name == pkgdef.package)
-        .where(Package.owner_id == owner.id)
-        .where(Package.version == pkgdef.version)
-    )
+    await session.exec(delete(Package).where(Package.id == package_id))
     await session.commit()
 
     app = (
         await session.exec(
             select(Package)
             .distinct(Package.name, Package.owner_id)
-            .where(Package.name == pkgdef.package)
-            .where(Package.owner_id == owner.id)
+            .where(Package.name == package.name)
+            .where(Package.owner_id == user.id)
             .order_by(
                 Package.name,
                 Package.owner_id,
@@ -421,12 +414,12 @@ async def delete_package(
 
     if app is not None:
         return f"""<tr id="app-{app.id}">
-        <td>{pkgdef.user}</td>
-        <td>{pkgdef.package}</td>
+        <td>{user.username}</td>
+        <td>{app.name}</td>
         <td>{app.runtime}</td>
         <td>{app.version}</td>
         <td><button class="uk-button uk-button-danger uk-button-small"
-                    hx-delete="/packages/delete?package={pkgdef.user}/{pkgdef.package}@{app.version}"
+                    hx-delete="/packages/delete?package={user.username}/{app.name}@{app.version}"
                     hx-target="#app-{app.id}"
                     hx-swap="outerHTML">Delete</button>
         </tr>"""

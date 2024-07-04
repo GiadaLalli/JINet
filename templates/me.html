@@ -20,4 +20,42 @@
 {% block main %}
 <h1>Hello {{ user.username }}!</h1>
 <a href="/logout" class="uk-button uk-button-danger">Logout</a>
+
+<ul class="uk-subnav uk-subnav-pill" uk-switcher>
+  <li><a href="#">My Applications</a></li>
+  <li><a href="#">My Example Data</a></li>
+  <li><a href="#">My Shared Results</a></li>
+</ul>
+
+<div class="uk-switcher uk-margin">
+  <table class="uk-table uk-table-divider uk-table-hover uk-table-small uk-table-justify uk-table-middle uk-table-responsive">
+    <tr>
+      <th>Owner</th>
+      <th>Name</th>
+      <th>Runtime</th>
+      <th>Version</th>
+      <th class="uk-table-shrink">Delete</th>
+    </tr>
+    {% for app in apps %}
+    <tr id="app-{{ app.id }}">
+      <td>{{ app.owner.username | escape }}</td>
+      <td>{{ app.name | escape }}</td>
+      <td>{{ app.runtime }}</td>
+      <td>{{ app.version }}</td>
+      <td class="uk-table-shrink">
+        <button class="uk-button uk-button-danger uk-button-small"
+                hx-delete="/packages/delete/{{ app.id }}"
+                hx-target="#app-{{ app.id }}"
+                hx-swap="outerHTML">
+          Delete
+        </button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <p>Sample Data</p>
+
+  <p>Shared Results</p>
+</div>
 {% endblock %}

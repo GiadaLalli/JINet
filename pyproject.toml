@@ -19,6 +19,7 @@ python-multipart = "^0.0.9"
 itsdangerous = "^2.1.2"
 httpx = "^0.26.0"
 secweb = "^1.9.1"
+apscheduler = "^3.10.4"
 
 
 [tool.poetry.group.dev.dependencies]
