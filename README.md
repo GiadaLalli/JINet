@@ -1,4 +1,4 @@
-<img style="width:100%" src="static/Jinet_Pictogram.svg">
+![JINet logo](static/banner.png)
 
 # JINet
 
