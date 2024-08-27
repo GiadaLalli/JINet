@@ -1,3 +1,5 @@
+<img style="width:100%" src="static/Jinet_Pictogram.png">
+
 # JINet
 
 JINet fosters secure interoperability and lowers barriers between scientists by allowing analyses to be run where the data is (rather than sending data to a remote system). Results are auditable, tracable, and reprodicible by design.
