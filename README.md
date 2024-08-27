@@ -2,7 +2,7 @@
 
 # JINet
 
-Easily run any analysis script where you are.
+Easily run any analysis scripts where you are.
 
 ## Development
 
