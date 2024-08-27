@@ -2,11 +2,11 @@
 
 # JINet
 
-JINet fosters secure interoperability and lowers barriers between scientists by allowing analyses to be run where the data is (rather than sending data to a remote system). Results are auditable, tracable, and reprodicible by design.
+Easily run any analysis script where you are.
 
-## Usage
+## Development
 
-Use `docker` to run an instance of the federated analysis distribution server.
+Use `docker` to run an instance of the analysis distribution server.
 
 ```bash
 docker compose up -d
