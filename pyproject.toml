@@ -27,6 +27,8 @@ black = "^24.2.0"
 pylint = "^3.0.3"
 mypy = "^1.8.0"
 pytest = "^8.0.0"
+matplotlib = "^3.9.2"
+pandas = "^2.2.3"
 
 [tool.mypy]
 ignore_missing_imports = true

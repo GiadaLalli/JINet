@@ -325,3 +325,6 @@ pyrightconfig.json
 ### Emacs
 *~
 .dir-locals.el
+
+### Benchmarking
+benchmarking/*.png
