@@ -81,3 +81,9 @@ def main(
     return fig.to_html(
         include_plotlyjs=False, full_html=False, default_height=f"{height}px"
     )
+
+if __name__ == "__main__":
+    import sys
+    df = read_csv(sys.argv[1])
+    fig = scatter_matrix_px(df)
+    fig.write_image("scatter_plot.png")
