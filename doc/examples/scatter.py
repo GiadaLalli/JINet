@@ -57,7 +57,7 @@ def scatter_px(
 #             title="Scatter Plot on Iris data", legend_orientation="h")
 
 
-def main(data: Path, x: str, y: str, target: str) -> str:
+def main(data: Path, x: str, y: str, target: str, height: int, width: int, title: str) -> str:
     df = pd.read_csv(data)
     fig = scatter_px(
         df,
@@ -65,9 +65,15 @@ def main(data: Path, x: str, y: str, target: str) -> str:
         y,
         target,
         dpi=450,
-        height=1000,
-        width=1100,
-        title="Scatter Plot on Iris data",
+        height=height,
+        width=width,
+        title=title,
         legend_orientation="h",
     )
-    return fig.to_html(include_plotlyjs=False, full_html=False, default_height="1000px")
+    return fig.to_html(include_plotlyjs=False, full_html=False, default_height=f"{height}px")
+
+if __name__ == "__main__":
+    import sys
+    df = pd.read_csv(sys.argv[1])
+    fig = scatter_px(df, x=sys.argv[2], y=sys.argv[3], target=sys.argv[4])
+    fig.write_image("scatter_plot.png")
